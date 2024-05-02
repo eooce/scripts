@@ -1,5 +1,5 @@
 # xray-reality
-This is a Bash script that installs Xray_reality
+This is a reality no interaction one-click script
 #
 ## Installation Guide
 just need you to run this command
@@ -34,11 +34,11 @@ docker build -t xrayreality .
 4. get connection config :
 > get url
 ``` bash
-docker exec -it xrayreality cat /root/test.url
+docker exec -it xrayreality cat /root/reality.txt
 ```
 > view qrcode 
 ``` bash
-docker exec -it xrayreality sh -c 'qrencode -s 120 -t ANSIUTF8 $(cat /root/test.url)'
+docker exec -it xrayreality sh -c 'qrencode -s 120 -t ANSIUTF8 $(cat /root/reality.txt)'
 ```
 ## how to manage ?
 > status :
@@ -57,11 +57,3 @@ docker stop xrayreality
 ``` bash
 docker rm -f xrayreality
 ```
-#
-## Note
-1. I have only tested it on Ubuntu 22 and wrote it for that system. Although I have the time and willingness to write it for other systems, I don't think I will need to do so unless I am forced to.
-2. I used ChatGPT to translate my words. Please pardon any mistakes in the translation.
-
-## ToDo
-- [ ] Add menu
-- [ ] test it on other OS and modify the script for them
