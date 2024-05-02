@@ -49,6 +49,6 @@ echo -e "\e[1;33mReality节点信息：\033[0m"
 echo -e "\e[1;32m$url\033[0m"
 echo ""
 echo -e "\e[1;33mReality节点二维码：\033[0m"
-qrencode -t ANSIUTF8 -m 2 -s 1 -o - "$url"
+qrencode -t ANSIUTF8 -m 2 -s 2 -o - "$url"
 
 exit 0
