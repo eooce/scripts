@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
-LABEL maintainer="admin@admin.net"
-LABEL version="0.1"
+LABEL maintainer="eooce@admin.net"
+LABEL version="1.0"
 LABEL description="docker image for xray reality from https://github.com/eooce/xray-reality"
 
 # Install dependencies
@@ -25,7 +25,7 @@ RUN curl -L -H "Cache-Control: no-cache" -o /tmp/xray.zip https://github.com/XTL
 WORKDIR /root/
 COPY ./conf.docker.sh ./install.sh
 RUN sh install.sh
-RUN qrencode -s 50 -o qr.png $(cat test.url)
+RUN qrencode -s 50 -o qr.png $(cat reality.txt)
 #end 
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
