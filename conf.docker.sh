@@ -21,7 +21,7 @@ echo "$newJson" | sudo tee /usr/local/etc/xray/config.json >/dev/null
 sudo service xray restart
 
 
-echo "$url" >> /root/realty.txt
+echo "$url" >> /root/reality.txt
 cd~
 cat reality.txt
 
