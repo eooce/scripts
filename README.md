@@ -5,7 +5,10 @@ This is a reality no interaction one-click script
 just need you to run this command
 ```
  bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/install.sh)"
-``` 
+```
+```
+ bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/reality.sh)"
+```
 and it will do the rest for you.
 
 ## Uninstallation guide
