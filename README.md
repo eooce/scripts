@@ -1,17 +1,12 @@
 # xray-reality
 This is a reality no interaction one-click script
 #
-## Installation Guide
-just need you to run this command
+## Install
+Run the following command. The PORT can be customized
 ```
- bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/install.sh)"
+ PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/reality.sh)"
 ```
-```
- bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/reality.sh)"
-```
-and it will do the rest for you.
-
-## Uninstallation guide
+## Uninstall
 ```
  bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/uninstall.sh)"
 ``` 
