@@ -2,15 +2,8 @@
 export PORT=${PORT:-'8880'}
 export UUID=$(cat /proc/sys/kernel/random/uuid)
 
-# 确保脚本以root身份运行
-if [[ $EUID -ne 0 ]]; then
-    clear
-    echo "Error: This script must be run as root!" 1>&2
-    exit 1
-fi
-
-# 设置时区
-timedatectl set-timezone Asia/Shanghai
+# 检查是否为root下运行
+[[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && sleep 2 && exit 1
 
 # 获取IP地址
 getIP() {
@@ -22,23 +15,30 @@ getIP() {
     echo "${serverIP}"
 }
 
-
+# 安装xray
 install_xray() {
-    if [ -f "/usr/bin/apt-get" ]; then
+    if command -v apt &>/dev/null; then
         apt-get update -y && apt-get upgrade -y
-        apt-get install -y gawk curl
-    else
+        apt-get install -y gawk curl openssl qrencode
+    elif command -v dnf &>/dev/null; then
+        dnf update -y && yum upgrade -y
+        dnf install -y epel-release gawk curl openssl qrencode
+    elif command -v yum &>/dev/null; then
         yum update -y && yum upgrade -y
-        yum install -y epel-release
-        yum install -y gawk curl
+        yum install -y epel-release gawk curl openssl qrencode
+    else
+        echo -e "${red}暂不支持你的系统!${re}"
+        return 1
     fi
     bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
 }
+
 
 reconfig() {
     reX25519Key=$(/usr/local/bin/xray x25519)
     rePrivateKey=$(echo "${reX25519Key}" | head -1 | awk '{print $3}')
     rePublicKey=$(echo "${reX25519Key}" | tail -n 1 | awk '{print $3}')
+    shortId=$(openssl rand -hex 8)
 
     # 重新配置Xray
     cat >/usr/local/etc/xray/config.json <<EOF
@@ -71,8 +71,7 @@ reconfig() {
                     "maxClientVer": "",
                     "maxTimeDiff": 0,
                     "shortIds": [
-                        "88",
-                        "123abc"
+                        "$shortId"
                     ]
                 }
             }
@@ -98,13 +97,18 @@ EOF
     ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
 
     # 删除运行脚本
-    rm -f tcp-wss.sh install-release.sh reality.sh vless-reality.sh  
+    rm -f tcp-wss.sh install-release.sh reality.sh 
+
+    url="vless://${UUID}@$(getIP):${PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.apple.com&fp=chrome&pbk=${rePublicKey}&sid=${shortId}&type=tcp&headerType=none#$ISP"
 
     echo ""
     echo -e "\e[1;32mreality 安装成功\033[0m"
     echo ""
-    echo -e "\e[1;32mvless://${UUID}@$(getIP):${PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.apple.com&fp=chrome&pbk=${rePublicKey}&sid=88&type=tcp&headerType=none#$ISP\033[0m"
+    echo -e "\e[1;32m${url}\033[0m"
     echo ""
+    qrencode -t ANSIUTF8 -m 2 -s 2 -o - "$url"
+    echo ""   
+
 }
 
 install_xray
