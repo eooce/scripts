@@ -2,15 +2,12 @@
 
 # Stop the Xray service
 sudo systemctl stop xray
-
-# Remove the Xray binary
-sudo rm /usr/bin/xray
-
-# Remove the Xray configuration file
-sudo rm /etc/xray/config.json
-
-# Remove the Xray service file
+sudo rm /usr/local/bin/xray
 sudo rm /etc/systemd/system/xray.service
+sudo rm /usr/local/etc/xray/config.json
+sudo rm /usr/local/share/xray/geoip.dat
+sudo rm /usr/local/share/xray/geosite.dat
+sudo rm /etc/systemd/system/xray@.service
 
 # Reload the systemd daemon
 sudo systemctl daemon-reload
