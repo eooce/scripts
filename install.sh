@@ -1,17 +1,12 @@
 #!/bin/bash
-
-# Update package index and install dependencies
 sudo apt-get update
 sudo apt-get install -y jq openssl qrencode
 
-curl -s https://raw.githubusercontent.com/eooce/xray-reality/master/default.json > config.json
-
-# Extract the desired variables using jq
-name=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
-email=$(jq -r '.email' config.json)
-port=$(jq -r '.port' config.json)
-sni=$(jq -r '.sni' config.json)
-path=$(jq -r '.path' config.json)
+# Extract the desired variables
+export NAME=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
+export PORT=${PORT:-'8880'}
+export SNI=${SNI:-'www.yahoo.com'}  
+export PATH=${PATH:-'%2F'}
 
 bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install --beta
 
@@ -24,25 +19,23 @@ serverIp=$(curl -s ipv4.wtfismyip.com/text)
 uuid=$(xray uuid)
 shortId=$(openssl rand -hex 8)
 
-url="vless://$uuid@$serverIp:$port?type=http&security=reality&encryption=none&pbk=$pub&fp=chrome&path=$path&sni=$sni&sid=$shortId#$name-reality"
-
 newJson=$(echo "$json" | jq \
     --arg pk "$pk" \
     --arg uuid "$uuid" \
-    --arg port "$port" \
-    --arg sni "$sni" \
-    --arg path "$path" \
-    --arg email "$email" \
-    '.inbounds[0].port= '"$(expr "$port")"' |
-     .inbounds[0].settings.clients[0].email = $email |
+    --arg port "$PORT" \
+    --arg sni "$SNI" \
+    --arg path "$PATH" \
+    '.inbounds[0].port= '"$(expr "$PORT")"' |
      .inbounds[0].settings.clients[0].id = $uuid |
      .inbounds[0].streamSettings.realitySettings.dest = $sni + ":443" |
-     .inbounds[0].streamSettings.realitySettings.serverNames += ["'$sni'", "www.'$sni'"] |
+     .inbounds[0].streamSettings.realitySettings.serverNames += ["'$SNI'", "www.'$SNI'"] |
      .inbounds[0].streamSettings.realitySettings.privateKey = $pk |
      .inbounds[0].streamSettings.realitySettings.shortIds += ["'$shortId'"]')
 
 echo "$newJson" | sudo tee /usr/local/etc/xray/config.json >/dev/null
 sudo systemctl restart xray
+
+url="vless://$uuid@$serverIp:$PORT?type=http&security=reality&encryption=none&pbk=$pub&fp=chrome&path=%2F&sni=$SNI&sid=$shortId#$NAME"
 
 echo ""
 echo -e "\e[1;33mReality节点信息：\033[0m"
