@@ -14,3 +14,6 @@ sudo systemctl daemon-reload
 
 # Remove any leftover Xray files or directories
 sudo rm -rf /var/log/xray /var/lib/xray
+
+clear
+echo -e "\e[1;33mReality已卸载\033[0m"
