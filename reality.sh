@@ -18,13 +18,13 @@ getIP() {
 # 安装xray
 install_xray() {
     if command -v apt &>/dev/null; then
-        apt-get update -y && apt-get upgrade -y
+        apt-get update -y
         apt-get install -y gawk curl openssl qrencode
     elif command -v dnf &>/dev/null; then
-        dnf update -y && yum upgrade -y
+        dnf update -y
         dnf install -y epel-release gawk curl openssl qrencode
     elif command -v yum &>/dev/null; then
-        yum update -y && yum upgrade -y
+        yum update -y
         yum install -y epel-release gawk curl openssl qrencode
     else
         echo -e "${red}暂不支持你的系统!${re}"
