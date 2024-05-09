@@ -1,5 +1,5 @@
 # xray-reality
-This is a reality no interaction one-click script
+This is a reality no interaction one-click script，only support Debian10+/Ubuntu20+/Centos7+/Fedora8+
 #
 ## Install
 Run the following command. The PORT can be customized
