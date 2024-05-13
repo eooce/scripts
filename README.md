@@ -6,6 +6,10 @@ Run the following command. The PORT can be customized
 ```
  PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/reality.sh)"
 ```
+Hysteria2
+```
+bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/Hysteria2.sh)"
+```
 ## Uninstall
 ```
  bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/uninstall.sh)"
