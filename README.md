@@ -7,8 +7,9 @@ Run the following command. The PORT can be customized
  PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/reality.sh)"
 ```
 Hysteria2
+The HY2_PORT can be customized
 ```
-bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/Hysteria2.sh)"
+HY2_PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/Hysteria2.sh)"
 ```
 ## Uninstall
 ```
