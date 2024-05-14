@@ -78,7 +78,7 @@ echo ""
 echo -e "\e[1;33mSurge\033[0m"
 echo -e "\e[1;32m$ISP = hysteria2, $HOST_IP, $HY2_PORT, password = $RANDOM_PSK, skip-cert-verify=true, sni=www.bing.com\033[0m"
 echo ""
-echo "Clash"
+echo -e "\e[1;33mClash\033[0m"
 cat << EOF
 - name: $ISP
   type: hysteria2
@@ -91,3 +91,5 @@ cat << EOF
   skip-cert-verify: true
   fast-open: true
 EOF
+
+systemctl restart hysteria-server.service
