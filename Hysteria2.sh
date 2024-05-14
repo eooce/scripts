@@ -1,7 +1,11 @@
 #!/bin/bash
 
+# 如何未指定端口则随机生成端口和密码
+[ -z "$HY2_PORT" ] && HY2_PORT=$(shuf -i 2000-65000 -n 1)
+[ -z "$RANDOM_PSK" ] && RANDOM_PSK=$(openssl rand -base64 12)
+
 # 检查是否为root下运行
-[[ $EUID -ne 0 ]] && echo -e "注意: 请在root用户下运行脚本" && sleep 2 && exit 1
+[[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && sleep 2 && exit 1
 
 # 判断系统及定义系统安装依赖方式
 DISTRO=$(cat /etc/os-release | grep '^ID=' | awk -F '=' '{print $2}' | tr -d '"')
@@ -24,24 +28,19 @@ case $DISTRO in
     ;;
 esac
 
-# 安装必要的软件包
+# 安装依赖
 $PACKAGE_INSTALL unzip wget curl
 
-# 一键安装Hysteria2
+# 安装Hysteria2
 bash <(curl -fsSL https://get.hy2.sh/)
 
 # 生成自签证书
 openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout /etc/hysteria/server.key -out /etc/hysteria/server.crt -subj "/CN=bing.com" -days 36500 && sudo chown hysteria /etc/hysteria/server.key && sudo chown hysteria /etc/hysteria/server.crt
 
-# 随机生成端口和密码
-RANDOM_PORT=$(shuf -i 2000-65000 -n 1)
-RANDOM_PSK=$(openssl rand -base64 12)
-
-# 生成配置文件
+# 生成hy2配置文件
 cat << EOF > /etc/hysteria/config.yaml
-listen: :$RANDOM_PORT # 监听随机端口
+listen: :$HY2_PORT  # 监听随机端口
 
-# 使用自签证书
 tls:
   cert: /etc/hysteria/server.crt
   key: /etc/hysteria/server.key
@@ -53,7 +52,7 @@ auth:
 masquerade:
   type: proxy
   proxy:
-    url: https://bing.com # 伪装网址
+    url: https://bing.com # 伪装域名
     rewriteHost: true
 EOF
 
@@ -70,21 +69,21 @@ HOST_IP=$(curl -s http://checkip.amazonaws.com)
 # 获取ipinfo
 ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
 
-# 输出所需信息
-echo "Hysteria2 安装成功"
+# 输出hy2信息
+echo -e "\e[1;32mHysteria2安装成功\033[0m"
 echo ""
-echo "V2rayN"
-echo "hysteria2://$RANDOM_PSK@$HOST_IP:$RANDOM_PORT/?sni=www.bing.com&alpn=h3&insecure=1#$ISP"
+echo -e "\e[1;33mV2rayN或Nekobox\033[0m"
+echo -e "\e[1;32mhysteria2://$RANDOM_PSK@$HOST_IP:$HY2_PORT/?sni=www.bing.com&alpn=h3&insecure=1#$ISP\033[0m"
 echo ""
-echo "Surge"
-echo "$ISP = hysteria2, $HOST_IP, $RANDOM_PORT, password = $RANDOM_PSK, skip-cert-verify=true, sni=www.bing.com"
+echo -e "\e[1;33mSurge\033[0m"
+echo -e "\e[1;32m$ISP = hysteria2, $HOST_IP, $HY2_PORT, password = $RANDOM_PSK, skip-cert-verify=true, sni=www.bing.com\033[0m"
 echo ""
 echo "Clash"
 cat << EOF
 - name: $ISP
   type: hysteria2
   server: $HOST_IP
-  port: $RANDOM_PORT
+  port: $HY2_PORT
   password: $RANDOM_PSK
   alpn:
     - h3
