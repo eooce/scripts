@@ -91,5 +91,3 @@ cat << EOF
   skip-cert-verify: true
   fast-open: true
 EOF
-
-systemctl restart hysteria-server.service
