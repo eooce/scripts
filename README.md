@@ -1,13 +1,14 @@
-# xray-reality
+# xray-reality,Hysteria2
 This is a reality no interaction one-click script，only support Debian10+/Ubuntu20+/Centos7+/Fedora8+
 #
 ## Install
-Run the following command. The PORT can be customized
+# Reality
+Run the following command. The PORT can be customized,Removing PORT=8880 it will use a random port
 ```
  PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/reality.sh)"
 ```
-Hysteria2
-The HY2_PORT can be customized
+# Hysteria2
+The HY2_PORT can be customized,Removing HY2_PORT=8880 it will use a random port
 ```
 HY2_PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/Hysteria2.sh)"
 ```
