@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 如何未指定端口则随机生成端口和密码
+# 随机生成端口和密码
 [ -z "$HY2_PORT" ] && HY2_PORT=$(shuf -i 2000-65000 -n 1)
 [ -z "$RANDOM_PSK" ] && RANDOM_PSK=$(openssl rand -base64 12)
 
