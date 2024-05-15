@@ -5,7 +5,7 @@
 [ -z "$RANDOM_PSK" ] && RANDOM_PSK=$(openssl rand -base64 12)
 
 # 检查是否为root下运行
-[[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && sleep 2 && exit 1
+[[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && sleep 1 && exit 1
 
 # 判断系统及定义系统安装依赖方式
 DISTRO=$(cat /etc/os-release | grep '^ID=' | awk -F '=' '{print $2}' | tr -d '"')
