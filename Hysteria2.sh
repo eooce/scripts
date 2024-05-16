@@ -64,7 +64,7 @@ systemctl restart hysteria-server.service
 systemctl enable hysteria-server.service
 
 # 获取本机IP地址
-HOST_IP=$(curl -s http://checkip.amazonaws.com)
+HOST_IP=$(curl -s ipv4.ip.sb)
 
 # 获取ipinfo
 ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
