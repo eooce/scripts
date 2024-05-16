@@ -64,7 +64,18 @@ systemctl restart hysteria-server.service
 systemctl enable hysteria-server.service
 
 # 获取本机IP地址
-HOST_IP=$(curl -s ipv4.ip.sb)
+ipv4=$(curl -s https://ipv4.icanhazip.com)
+if [ -n "$ipv4" ]; then
+    HOST_IP="$ipv4"
+else
+    ipv6=$(curl -s https://ipv6.icanhazip.com)
+    if [ -n "$ipv6" ]; then
+        HOST_IP="$ipv6"
+    else
+        echo -e "\e[1;35m无法获取IPv4或IPv6地址\033[0m"
+        exit 1
+    fi
+fi
 
 # 获取ipinfo
 ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
