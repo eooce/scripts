@@ -48,12 +48,18 @@ tls:
 auth:
   type: password
   password: "$RANDOM_PSK" # 设置随机密码
-  
+
+fastOpen: true
+
 masquerade:
   type: proxy
   proxy:
     url: https://bing.com # 伪装域名
     rewriteHost: true
+
+transport:
+  udp:
+    hopInterval: 30s
 EOF
 
 # 启动Hysteria2
@@ -76,6 +82,7 @@ else
         exit 1
     fi
 fi
+echo -e "\e[1;32m本机IP: $HOST_IP\033[0m"
 
 # 获取ipinfo
 ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
