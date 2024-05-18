@@ -10,7 +10,7 @@ getIP() {
     local serverIP
     serverIP=$(curl -s -4 http://www.cloudflare.com/cdn-cgi/trace | grep "ip" | awk -F "[=]" '{print $2}')
     if [[ -z "${serverIP}" ]]; then
-        serverIP=$(curl -s -6 http://www.cloudflare.com/cdn-cgi/trace | grep "ip" | awk -F "[=]" '{print $2}')
+        serverIP=$(curl -s https://ipv6.icanhazip.com)
     fi
     echo "${serverIP}"
 }
