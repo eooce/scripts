@@ -1,6 +1,6 @@
 #!/bin/bash
 
-Install dependencies() {
+install_dependencies() {
 if command -v apt &>/dev/null; then
     apt-get install -y gawk curl openssl
 elif command -v dnf &>/dev/null; then
@@ -14,7 +14,7 @@ else
     exit 1
 fi
 }
-Install dependencies
+install_dependencies
 
 # Define Environment Variables
 [ -z "$UUID" ] && UUID=$(openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}')
