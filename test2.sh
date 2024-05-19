@@ -1,5 +1,21 @@
 #!/bin/bash
 
+Install dependencies() {
+if command -v apt &>/dev/null; then
+    apt-get install -y gawk curl openssl
+elif command -v dnf &>/dev/null; then
+    dnf install -y gawk curl openssl
+elif command -v yum &>/dev/null; then
+    yum install -y gawk curl openssl
+elif command -v apk &>/dev/null; then
+    apk add gawk curl openssl
+else
+    echo -e "${red}暂不支持你的系统!${re}"
+    exit 1
+fi
+}
+Install dependencies
+
 # Define Environment Variables
 [ -z "$UUID" ] && UUID=$(openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}')
 [ -z "$PORT" ] && PORT=$(shuf -i 2000-65000 -n 1)
