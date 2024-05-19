@@ -7,6 +7,10 @@ Run the following command. The PORT can be customized,Removing PORT=8880 it will
 ```
 PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/reality.sh)"
 ```
+
+```
+bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/test2.sh)"  
+```
 ## Hysteria2
 The HY2_PORT can be customized,Removing HY2_PORT=8880 it will use a random port
 ```
