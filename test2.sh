@@ -2,7 +2,6 @@
 
 install_dependencies() {
     if command -v apt &>/dev/null; then
-        apt-get update -q
         apt-get install -y -q gawk curl openssl
     elif command -v dnf &>/dev/null; then
         dnf install -y -q gawk curl openssl
