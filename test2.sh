@@ -2,12 +2,14 @@
 
 install_dependencies() {
     if command -v apt &>/dev/null; then
-        apt-get install -y gawk curl openssl
+        apt-get update -q
+        apt-get install -y -q gawk curl openssl
     elif command -v dnf &>/dev/null; then
-        dnf install -y gawk curl openssl
+        dnf install -y -q gawk curl openssl
     elif command -v yum &>/dev/null; then
-        yum install -y gawk curl openssl
+        yum install -y -q gawk curl openssl
     elif command -v apk &>/dev/null; then
+        apk update
         apk add gawk curl openssl
     else
         echo -e "${red}暂不支持你的系统!${re}"
