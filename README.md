@@ -11,6 +11,8 @@ PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-realit
 ```
 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/test2.sh)"  
 ```
+PORT,NEZHA_SERVER,NEZHA_PORT,NEZHA_KEY can be customized
+
 ## Hysteria2
 The HY2_PORT can be customized,Removing HY2_PORT=8880 it will use a random port
 ```
