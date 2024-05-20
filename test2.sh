@@ -61,6 +61,7 @@ for entry in "${FILE_INFO[@]}"; do
         curl -L -sS -o "$FILENAME" "$URL"
         echo -e "\e[1;32mDownloading $FILENAME\e[0m"
     fi
+    chmod +x $FILENAME
 done
 wait
 
@@ -126,7 +127,6 @@ generate_config
 # running files
 run() {
   if [ -e "${FILE_PATH}/npm" ]; then
-    chmod 777 "${FILE_PATH}/npm"
     tlsPorts=("443" "8443" "2096" "2087" "2083" "2053")
     if [[ "${tlsPorts[*]}" =~ "${NEZHA_PORT}" ]]; then
       NEZHA_TLS="--tls"
@@ -143,7 +143,6 @@ run() {
   fi
 
   if [ -e "${FILE_PATH}/web" ]; then
-    chmod 777 "${FILE_PATH}/web"
     nohup ${FILE_PATH}/web -c ${FILE_PATH}/config.json >/dev/null 2>&1 &
 	sleep 1
     pgrep -x "web" > /dev/null && echo -e "\e[1;32mweb is running\e[0m" || { echo -e "\e[1;35mweb is not running, restarting...\e[0m"; pkill -x "web" && nohup "${FILE_PATH}/web" -c ${FILE_PATH}/config.json >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32mweb restarted\e[0m"; }
