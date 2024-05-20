@@ -25,7 +25,7 @@ install_dependencies() {
     elif command -v apk &>/dev/null; then
         pm="apk add"
     else
-        echo -e "${red}暂不支持你的系统!${re}"
+        echo -e "\e[1;33m暂不支持的系统!\e[0m"
         exit 1
     fi
     $pm $install
@@ -40,6 +40,8 @@ export PORT=${PORT:-$(shuf -i 2000-65000 -n 1)}
 export FILE_PATH=${FILE_PATH:-'./app'}
 export SNI=${SNI:-'www.yahoo.com'}
 export UUID=$(openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}')
+
+echo -e "\e[1;32mInstallation is in progress, please wait...\e[0m"
 
 # Download Dependency Files
 ARCH=$(uname -m) && DOWNLOAD_DIR="${FILE_PATH}" && mkdir -p "$DOWNLOAD_DIR" && FILE_INFO=()
