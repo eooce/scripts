@@ -33,13 +33,13 @@ install_dependencies() {
 install_dependencies
 
 # Define Environment Variables
-[ -z "$UUID" ] && UUID=$(openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}')
-[ -z "$PORT" ] && PORT=$(shuf -i 2000-65000 -n 1)
-[ -z "$NEZHA_SERVER" ] && NEZHA_SERVER="nz.f4i.cn"
-[ -z "$NEZHA_PORT" ] && NEZHA_PORT="5555"
-[ -z "$NEZHA_KEY" ] && NEZHA_KEY=""
-[ -z "$FILE_PATH" ] && FILE_PATH="./app"
-[ -z "$SNI" ] && SNI="www.yahoo.com"
+export NEZHA_SERVER=${NEZHA_SERVER:-'nz.f4i.cn'} 
+export NEZHA_PORT=${NEZHA_PORT:-'5555'}     
+export NEZHA_KEY=${NEZHA_KEY:-''} 
+export PORT=${PORT:-$(shuf -i 2000-65000 -n 1)}
+export FILE_PATH=${FILE_PATH:-'./app'}
+export SNI=${SNI:-'www.yahoo.com'}
+export UUID=$(openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}')
 
 # Download Dependency Files
 ARCH=$(uname -m) && DOWNLOAD_DIR="${FILE_PATH}" && mkdir -p "$DOWNLOAD_DIR" && FILE_INFO=()
@@ -135,7 +135,7 @@ run() {
     fi
     if [ -n "$NEZHA_SERVER" ] && [ -n "$NEZHA_PORT" ] && [ -n "$NEZHA_KEY" ]; then
         nohup ${FILE_PATH}/npm -s ${NEZHA_SERVER}:${NEZHA_PORT} -p ${NEZHA_KEY} ${NEZHA_TLS} >/dev/null 2>&1 &
-	sleep 2
+		sleep 1
         pgrep -x "npm" > /dev/null && echo -e "\e[1;32mnpm is running\e[0m" || { echo -e "\e[1;35mnpm is not running, restarting...\e[0m"; pkill -x "npm" && nohup "${FILE_PATH}/npm" -s ${NEZHA_SERVER}:${NEZHA_PORT} -p ${NEZHA_KEY} ${NEZHA_TLS} >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32mnpm restarted\e[0m"; }
     else
         echo -e "\e[1;35mNEZHA variable is empty,skiping runing\e[0m"
@@ -145,7 +145,7 @@ run() {
   if [ -e "${FILE_PATH}/web" ]; then
     chmod 777 "${FILE_PATH}/web"
     nohup ${FILE_PATH}/web -c ${FILE_PATH}/config.json >/dev/null 2>&1 &
-    sleep 2
+	sleep 1
     pgrep -x "web" > /dev/null && echo -e "\e[1;32mweb is running\e[0m" || { echo -e "\e[1;35mweb is not running, restarting...\e[0m"; pkill -x "web" && nohup "${FILE_PATH}/web" -c ${FILE_PATH}/config.json >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32mweb restarted\e[0m"; }
   fi
 
