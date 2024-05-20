@@ -154,7 +154,7 @@ run() {
 run
 
 # get ip
-IP=$(curl -s https://ipv4.icanhazip.com)
+IP=$(curl -s ipv4.ip.sb)
 
 # get ipinfo
 ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
