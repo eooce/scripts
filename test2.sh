@@ -1,19 +1,34 @@
 #!/bin/bash
-
+# Initial Installation Dependencies
 install_dependencies() {
+    packages="gawk curl openssl"
+    install=""
+
+    for pkg in $packages; do
+        if ! command -v $pkg &>/dev/null; then
+            install="$install $pkg"
+        fi
+    done
+
+    if [ -z "$install" ]; then
+        echo "All packages are already installed"
+        return
+    fi
+
     if command -v apt &>/dev/null; then
-        apt-get install -y -q gawk curl openssl
+        pm="apt-get install -y -q"
     elif command -v dnf &>/dev/null; then
-        dnf install -y -q gawk curl openssl
+        pm="dnf install -y"
     elif command -v yum &>/dev/null; then
-        yum install -y -q gawk curl openssl
+        pm="yum install -y"
     elif command -v apk &>/dev/null; then
-        apk update
-        apk add gawk curl openssl
+        pm="apk add"
     else
         echo -e "${red}暂不支持你的系统!${re}"
         exit 1
     fi
+
+    $pm $install
 }
 install_dependencies
 
@@ -22,7 +37,7 @@ install_dependencies
 [ -z "$PORT" ] && PORT=$(shuf -i 2000-65000 -n 1)
 [ -z "$NEZHA_SERVER" ] && NEZHA_SERVER="nz.f4i.cn"
 [ -z "$NEZHA_PORT" ] && NEZHA_PORT="5555"
-[ -z "$NEZHA_KEY" ] && : 
+[ -z "$NEZHA_KEY" ] && NEZHA_KEY=""
 [ -z "$FILE_PATH" ] && FILE_PATH="./app"
 [ -z "$SNI" ] && SNI="www.yahoo.com"
 
@@ -46,7 +61,6 @@ for entry in "${FILE_INFO[@]}"; do
         curl -L -sS -o "$FILENAME" "$URL"
         echo -e "\e[1;32mDownloading $FILENAME\e[0m"
     fi
-    chmod +x $FILENAME
 done
 wait
 
@@ -121,7 +135,7 @@ run() {
     fi
     if [ -n "$NEZHA_SERVER" ] && [ -n "$NEZHA_PORT" ] && [ -n "$NEZHA_KEY" ]; then
         nohup ${FILE_PATH}/npm -s ${NEZHA_SERVER}:${NEZHA_PORT} -p ${NEZHA_KEY} ${NEZHA_TLS} >/dev/null 2>&1 &
-		sleep 2
+	sleep 2
         pgrep -x "npm" > /dev/null && echo -e "\e[1;32mnpm is running\e[0m" || { echo -e "\e[1;35mnpm is not running, restarting...\e[0m"; pkill -x "npm" && nohup "${FILE_PATH}/npm" -s ${NEZHA_SERVER}:${NEZHA_PORT} -p ${NEZHA_KEY} ${NEZHA_TLS} >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32mnpm restarted\e[0m"; }
     else
         echo -e "\e[1;35mNEZHA variable is empty,skiping runing\e[0m"
@@ -131,7 +145,7 @@ run() {
   if [ -e "${FILE_PATH}/web" ]; then
     chmod 777 "${FILE_PATH}/web"
     nohup ${FILE_PATH}/web -c ${FILE_PATH}/config.json >/dev/null 2>&1 &
-	sleep 2
+    sleep 2
     pgrep -x "web" > /dev/null && echo -e "\e[1;32mweb is running\e[0m" || { echo -e "\e[1;35mweb is not running, restarting...\e[0m"; pkill -x "web" && nohup "${FILE_PATH}/web" -c ${FILE_PATH}/config.json >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32mweb restarted\e[0m"; }
   fi
 
