@@ -70,11 +70,11 @@ systemctl restart hysteria-server.service
 systemctl enable hysteria-server.service
 
 # 获取本机IP地址
-ipv4=$(curl -s https://ipv4.icanhazip.com)
+ipv4=$(curl -s ipv4.ip.sb)
 if [ -n "$ipv4" ]; then
     HOST_IP="$ipv4"
 else
-    ipv6=$(curl -s https://ipv6.icanhazip.com)
+    ipv6=$(curl -s --max-time 1 ipv6.ip.sb)
     if [ -n "$ipv6" ]; then
         HOST_IP="$ipv6"
     else
