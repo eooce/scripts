@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Initial Installation Dependencies
 install_dependencies() {
     packages="gawk curl openssl"
@@ -11,7 +12,7 @@ install_dependencies() {
     done
 
     if [ -z "$install" ]; then
-        echo "All packages are already installed"
+        echo -e "\e[1;32mAll packages are already installed\e[0m"
         return
     fi
 
@@ -27,7 +28,6 @@ install_dependencies() {
         echo -e "${red}暂不支持你的系统!${re}"
         exit 1
     fi
-
     $pm $install
 }
 install_dependencies
