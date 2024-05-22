@@ -1,5 +1,5 @@
 #!/bin/bash
-json=$(curl -s https://raw.githubusercontent.com/eooce/xray-reality/master/config.json)
+json=$(curl -s https://raw.githubusercontent.com/eooce/scripts/master/config.json)
 
 keys=$(xray x25519)
 name=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"_"$18}' | sed -e 's/ /_/g')
