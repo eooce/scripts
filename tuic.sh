@@ -131,8 +131,7 @@ fi
 chmod 755 tuic-server
 
 # Create self-signed certs
-openssl ecparam -genkey -name prime256v1 -out ca.key
-openssl req -new -x509 -days 36500 -key ca.key -out ca.crt -subj "/CN=bing.com"
+openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout /root/tuic/ca.key -out /root/tuic/ca.crt -subj "/CN=bing.com" -days 36500
 
 # Prompt user for port and password
 echo ""
