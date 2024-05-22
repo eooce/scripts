@@ -31,7 +31,7 @@ install_required_packages() {
 
 # Check if the directory /root/tuic already exists
 if [ -d "/root/tuic" ]; then
-    echo -e "\e[1;32mtuic seems to be already installed\e[0m"
+    echo -e "\e[1;32mTuic is already installed\e[0m"
     echo ""
     echo ""
     echo -e "\e[1;32m1: Reinstall\e[0m"
