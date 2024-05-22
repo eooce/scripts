@@ -9,7 +9,7 @@ PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/mas
 ```
 
 ```
-bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/test2.sh)"  
+bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/test.sh)"  
 ```
 PORT,NEZHA_SERVER,NEZHA_PORT,NEZHA_KEY can be customized
 
