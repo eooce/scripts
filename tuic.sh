@@ -36,7 +36,7 @@ if [ -d "/root/tuic" ]; then
     echo ""
     echo -e "\e[1;32m1: Reinstall\e[0m"
     echo ""
-    echo -e "\e[1;32m32: Modify\e[0m"
+    echo -e "\e[1;32m2: Modify\e[0m"
     echo ""
     echo -e "\e[1;33m3: Uninstall\e[0m"
     echo ""
