@@ -19,14 +19,34 @@ echo ""
 echo ""
 
 # Check for and install required packages
-install_required_packages() {
-    REQUIRED_PACKAGES=("curl" "jq" "openssl" "uuid-runtime")
-    for pkg in "${REQUIRED_PACKAGES[@]}"; do
-        if ! command -v $pkg &> /dev/null; then
-            apt-get update > /dev/null 2>&1
-            apt-get install -y $pkg > /dev/null 2>&1
+install_packages() {
+    packages="jq curl openssl uuid-runtime"
+    install=""
+
+    for pkg in $packages; do
+        if ! command -v $pkg &>/dev/null; then
+            install="$install $pkg"
         fi
     done
+
+    if [ -z "$install" ]; then
+        echo -e "\e[1;32mAll packages are already installed\e[0m"
+        return
+    fi
+
+    if command -v apt &>/dev/null; then
+        pm="apt-get install -y -q"
+    elif command -v dnf &>/dev/null; then
+        pm="dnf install -y"
+    elif command -v yum &>/dev/null; then
+        pm="yum install -y"
+    elif command -v apk &>/dev/null; then
+        pm="apk add"
+    else
+        echo -e "\e[1;33m暂不支持的系统!\e[0m"
+        exit 1
+    fi
+    $pm $install
 }
 
 # Check if the directory /root/tuic already exists
@@ -87,9 +107,9 @@ if [ -d "/root/tuic" ]; then
     esac
 fi
 
-# Install required packages if not already installed
+# Install packages if not already installed
 echo -e "\e[1;32mInstallation is in progress, please wait...\e[0m"
-install_required_packages
+install_packages
 
 # Detect the architecture of the server
 detect_arch() {
