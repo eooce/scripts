@@ -1,6 +1,6 @@
 # Reality,Hysteria2,Tuic-v5
 This is a reality no interaction one-click script，only support Debian10+/Ubuntu20+/Centos7+/Fedora8+
-#
+
 # Install
 ## Reality
 Run the following command. The PORT can be customized,Removing PORT=8880 it will use a random port
