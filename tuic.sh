@@ -107,9 +107,9 @@ if [ -d "/root/tuic" ]; then
     esac
 fi
 
-# Install packages if not already installed
-echo -e "\e[1;32mInstallation is in progress, please wait...\e[0m"
+# Install packages if is not already installed
 install_packages
+echo -e "\e[1;32mInstallation is in progress, please wait...\e[0m"
 
 # Detect the architecture of the server
 detect_arch() {
