@@ -200,8 +200,9 @@ EOL
 
 # Reload systemd, enable and start tuic
 systemctl daemon-reload
-systemctl enable tuic > /dev/null 2>&1
 systemctl start tuic
+systemctl enable tuic > /dev/null 2>&1
+systemctl restart tuic
 
 # Print the v2rayN config and nekoray/nekobox URL
 public_ip=$(curl -s https://api.ipify.org)
