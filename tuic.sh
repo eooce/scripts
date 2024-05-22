@@ -36,7 +36,7 @@ if [ -d "/root/tuic" ]; then
     echo ""
     echo -e "\e[1;32m1: Reinstall\e[0m"
     echo ""
-    echo -e "\e[1;32m2: Modify\e[0m"
+    echo -e "\e[1;32m2: Modify-config\e[0m"
     echo ""
     echo -e "\e[1;35m3: Uninstall\e[0m"
     echo ""
@@ -50,15 +50,15 @@ if [ -d "/root/tuic" ]; then
             systemctl disable tuic > /dev/null 2>&1
             rm /etc/systemd/system/tuic.service
             ;;
-        2)
+        2)   read -p $'\033[1;35mEnter a password (or press enter for a random password): \033[0m'
             cd /root/tuic
             current_port=$(jq -r '.server' config.json | cut -d':' -f2)
             current_password=$(jq -r ".users.\"$current_uuid\"")
             echo ""
-            read -p "Enter a new port (or press enter to keep the current one [$current_port]): " new_port
+            read -p $'\033[1;35mEnter a new port (or press enter to keep the current one [$current_port]): \033[0m' new_port
             [ -z "$new_port" ] && new_port=$current_port
             echo ""
-            read -p "Enter a new password (or press enter to keep the current one [$current_password]): " new_password
+            read -p $'\033[1;35mEnter a new password (or press enter to keep the current one [$current_password]): \033[0m' new_password
             [ -z "$new_password" ] && new_password=$current_password
             jq ".server = \"[::]:$new_port\"" config.json > temp.json && mv temp.json config.json
             jq ".users = {\"$current_uuid\":\"$new_password\"}" config.json > temp.json && mv temp.json config.json
@@ -135,11 +135,11 @@ openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout 
 
 # Prompt user for port and password
 echo ""
-read -p $'\033[1;91mEnter a port (or press enter for a random port between 10000 and 65000): \033[0m' port
+read -p $'\033[1;35mEnter a port (or press enter for a random port between 10000 and 65000): \033[0m' port
 echo ""
 [ -z "$port" ] && port=$((RANDOM % 55001 + 10000))
 echo ""
-read -p $'\033[1;91mEnter a password (or press enter for a random password): \033[0m' password
+read -p $'\033[1;35mEnter a password (or press enter for a random password): \033[0m' password
 echo ""
 [ -z "$password" ] && password=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 8 | head -n 1)
 
@@ -148,7 +148,7 @@ UUID=$(uuidgen)
 
 # Ensure UUID generation is successful
 if [ -z "$UUID" ]; then
-    echo -e "\e[1;35mError: Failed to generate UUID\e[0m"
+    echo -e "\e[1;91mError: Failed to generate UUID\e[0m"
     exit 1
 fi
 
@@ -210,8 +210,6 @@ public_ip=$(curl -s https://api.ipify.org)
 isp=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
 
 # nekoray/nekobox URL
-echo -e "\nV2rayN、NekoBox:"
+echo -e "\e[1;33m\nV2rayN、NekoBox\e[0m"
 echo -e "\e[1;32mtuic://$UUID:$password@$public_ip:$port?congestion_control=bbr&alpn=h3&sni=www.bing.com&udp_relay_mode=native&allow_insecure=1#$isp\e[0m"
 echo ""
-
-exit 0
