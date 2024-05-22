@@ -36,6 +36,7 @@ install() {
     $pm $install
     bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
 }
+install
 
 # 获取IP地址
 getIP() {
@@ -124,5 +125,4 @@ EOF
 
 }
 
-install
 reconfig
