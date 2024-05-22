@@ -18,6 +18,12 @@ The HY2_PORT can be customized,Removing HY2_PORT=8880 it will use a random port
 ```
 HY2_PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/Hysteria2.sh)"
 ```
+
+## Tuic-v5
+```
+bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/tuic.sh)"
+```
+
 ## Uninstall
 ```
  bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/uninstall.sh)"
