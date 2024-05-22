@@ -1,4 +1,4 @@
-# xray-reality,Hysteria2
+# Reality,Hysteria2,Tuic-v5
 This is a reality no interaction one-click script，only support Debian10+/Ubuntu20+/Centos7+/Fedora8+
 #
 # Install
