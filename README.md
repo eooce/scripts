@@ -5,22 +5,22 @@ This is a reality no interaction one-click script，only support Debian10+/Ubunt
 ## Reality
 Run the following command. The PORT can be customized,Removing PORT=8880 it will use a random port
 ```
-PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/reality.sh)"
+PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/reality.sh)"
 ```
 
 ```
-bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/test2.sh)"  
+bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/test2.sh)"  
 ```
 PORT,NEZHA_SERVER,NEZHA_PORT,NEZHA_KEY can be customized
 
 ## Hysteria2
 The HY2_PORT can be customized,Removing HY2_PORT=8880 it will use a random port
 ```
-HY2_PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/Hysteria2.sh)"
+HY2_PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/Hysteria2.sh)"
 ```
 ## Uninstall
 ```
- bash -c "$(curl -L https://raw.githubusercontent.com/eooce/xray-reality/master/uninstall.sh)"
+ bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/uninstall.sh)"
 ``` 
 
 ## Installation Guide with Docker 
@@ -31,7 +31,7 @@ curl -fsSL https://get.docker.com | sh
 ```
 1. clone this project 
 ``` bash
-git clone https://github.com/eooce/xray-reality && cd xray-reality
+git clone https://github.com/eooce/scripts && cd xray-reality
 ```
 2. build docker image 
 ``` bash
