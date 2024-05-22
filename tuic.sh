@@ -14,7 +14,7 @@ print_with_delay() {
 # Introduction animation
 echo ""
 echo ""
-print_with_delay "install tuic-v5 by eooce" 0.2
+print_with_delay -e "\e[1;32mINSTALL Tuic-V5 by eooce\e[0m" 0.1
 echo ""
 echo ""
 
@@ -31,15 +31,14 @@ install_required_packages() {
 
 # Check if the directory /root/tuic already exists
 if [ -d "/root/tuic" ]; then
-    echo "tuic seems to be already installed."
+    echo -e "\e[1;32mtuic seems to be already installed\e[0m"
     echo ""
-    echo "Choose an option:"
     echo ""
-    echo "1) Reinstall"
+    echo -e "\e[1;32m1: Reinstall\e[0m"
     echo ""
-    echo "2) Modify"
+    echo -e "\e[1;32m32: Modify\e[0m"
     echo ""
-    echo "3) Uninstall"
+    echo -e "\e[1;33m3: Uninstall\e[0m"
     echo ""
     read -p "Enter your choice: " choice
 
@@ -77,18 +76,19 @@ if [ -d "/root/tuic" ]; then
             pkill -f tuic-server
             systemctl disable tuic > /dev/null 2>&1
             rm /etc/systemd/system/tuic.service
-            echo "tuic uninstalled successfully!"
+            echo -e "\e[1;32mtuic uninstalled successfully!\e[0m"
             echo ""
             exit 0
             ;;
         *)
-            echo "Invalid choice."
+            echo -e "\e[1;33mInvalid choice\e[0m"
             exit 1
             ;;
     esac
 fi
 
 # Install required packages if not already installed
+echo -e "\e[1;32mInstallation is in progress, please wait...\e[0m"
 install_required_packages
 
 # Detect the architecture of the server
@@ -108,7 +108,7 @@ detect_arch() {
             echo "aarch64-unknown-linux-gnu"
             ;;
         *)
-            echo "Unsupported architecture: $arch"
+            echo -e "\e[1;33mUnsupported architecture: $arch\e[0m"
             exit 1
             ;;
     esac
@@ -206,7 +206,12 @@ systemctl start tuic
 # Print the v2rayN config and nekoray/nekobox URL
 public_ip=$(curl -s https://api.ipify.org)
 
+# get ipinfo
+isp=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
+
 # nekoray/nekobox URL
-echo -e "\nV2rayN/NekoBox URL:"
-echo "tuic://$UUID:$password@$public_ip:$port/?congestion_control=bbr&alpn=h3,spdy/3.1&udp_relay_mode=native&allow_insecure=1"
+echo -e "\nV2rayN、NekoBox:"
+echo -e "\e[1;32mtuic://$UUID:$password@$public_ip:$port?congestion_control=bbr&alpn=h3&sni=www.bing.com&udp_relay_mode=native&allow_insecure=1#$isp\e[0m"
 echo ""
+
+exit 0
