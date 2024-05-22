@@ -10,7 +10,7 @@ export PATH=${PATH:-'%2F'}
 
 bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install --beta
 
-json=$(curl -s https://raw.githubusercontent.com/eooce/xray-reality/master/config.json)
+json=$(curl -s https://raw.githubusercontent.com/eooce/scripts/master/config.json)
 
 keys=$(xray x25519)
 pk=$(echo "$keys" | awk '/Private key:/ {print $3}')
