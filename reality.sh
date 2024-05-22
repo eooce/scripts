@@ -6,7 +6,7 @@ export UUID=${UUID:-$(cat /proc/sys/kernel/random/uuid)}
 [[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && sleep 1 && exit 1
 
 # 安装依赖
-install() {
+Install_dependencies() {
     packages="gawk curl openssl qrencode"
     install=""
 
@@ -35,7 +35,7 @@ install() {
     fi
     $pm $install
 }
-install
+Install_dependencies
 
 # 获取IP地址
 getIP() {
