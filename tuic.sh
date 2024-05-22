@@ -38,9 +38,9 @@ if [ -d "/root/tuic" ]; then
     echo ""
     echo -e "\e[1;32m2: Modify\e[0m"
     echo ""
-    echo -e "\e[1;33m3: Uninstall\e[0m"
+    echo -e "\e[1;35m3: Uninstall\e[0m"
     echo ""
-    read -p "Enter your choice: " choice
+    read -p $'\033[1;91mEnter your choice: \033[0m' choice
 
     case $choice in
         1)
@@ -65,8 +65,8 @@ if [ -d "/root/tuic" ]; then
             systemctl daemon-reload
             systemctl restart tuic
             public_ip=$(curl -s https://api.ipify.org)
-            echo -e "\nNekoBox/NekoRay URL:"
-            echo "tuic://$current_uuid:$new_password@$public_ip:$new_port/?congestion_control=bbr&alpn=h3,spdy/3.1&udp_relay_mode=native&allow_insecure=1"
+            echo -e "\e[1;33m\nV2rayN、NekoBox\e[0m"
+            echo -e "\e[1;32mtuic://$UUID:$password@$public_ip:$port?congestion_control=bbr&alpn=h3&sni=www.bing.com&udp_relay_mode=native&allow_insecure=1#$isp\e[0m"
             echo ""
             exit 0
             ;;
@@ -125,21 +125,21 @@ mkdir -p /root/tuic
 cd /root/tuic
 wget -O tuic-server -q "$download_url"
 if [[ $? -ne 0 ]]; then
-    echo "Failed to download the tuic binary."
+    echo "Failed to download the tuic binary"
     exit 1
 fi
 chmod 755 tuic-server
 
 # Create self-signed certs
-openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout /root/tuic/ca.key -out /root/tuic/ca.crt -subj "/CN=bing.com" -days 36500
+openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout /root/tuic/server.key -out /root/tuic/server.crt -subj "/CN=bing.com" -days 36500
 
 # Prompt user for port and password
 echo ""
-read -p "Enter a port (or press enter for a random port between 10000 and 65000): " port
+read -p $'\033[1;91mEnter a port (or press enter for a random port between 10000 and 65000): \033[0m' port
 echo ""
 [ -z "$port" ] && port=$((RANDOM % 55001 + 10000))
 echo ""
-read -p "Enter a password (or press enter for a random password): " password
+read -p $'\033[1;91mEnter a password (or press enter for a random password): \033[0m' password
 echo ""
 [ -z "$password" ] && password=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 8 | head -n 1)
 
@@ -148,7 +148,7 @@ UUID=$(uuidgen)
 
 # Ensure UUID generation is successful
 if [ -z "$UUID" ]; then
-    echo "Error: Failed to generate UUID."
+    echo -e "\e[1;35mError: Failed to generate UUID\e[0m"
     exit 1
 fi
 
@@ -159,8 +159,8 @@ cat > config.json <<EOL
   "users": {
     "$UUID": "$password"
   },
-  "certificate": "/root/tuic/ca.crt",
-  "private_key": "/root/tuic/ca.key",
+  "certificate": "/root/tuic/server.crt",
+  "private_key": "/root/tuic/server.key",
   "congestion_control": "bbr",
   "alpn": ["h3", "spdy/3.1"],
   "udp_relay_ipv6": true,
