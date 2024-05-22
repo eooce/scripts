@@ -20,7 +20,7 @@ echo ""
 
 # Check for and install required packages
 install_packages() {
-    packages="jq curl openssl uuid-runtime"
+    packages="jq curl openssl"
     install=""
 
     for pkg in $packages; do
@@ -96,7 +96,7 @@ if [ -d "/root/tuic" ]; then
             pkill -f tuic-server
             systemctl disable tuic > /dev/null 2>&1
             rm /etc/systemd/system/tuic.service
-            echo -e "\e[1;32mtuic uninstalled successfully!\e[0m"
+            echo -e "\e[1;32mTuic uninstalled successfully!\e[0m"
             echo ""
             exit 0
             ;;
@@ -164,7 +164,7 @@ echo ""
 [ -z "$password" ] && password=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 8 | head -n 1)
 
 # Generate UUID
-UUID=$(uuidgen)
+UUID=$(openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}')
 
 # Ensure UUID generation is successful
 if [ -z "$UUID" ]; then
