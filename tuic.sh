@@ -156,7 +156,7 @@ openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout 
 
 # Prompt user for port and password
 echo ""
-read -p $'\033[1;35mEnter a port (or press enter for a random port between 10000 and 65000): \033[0m' port
+read -p $'\033[1;35mEnter a port between 10000 to 65000(or press enter for a random port): \033[0m' port
 echo ""
 [ -z "$port" ] && port=$((RANDOM % 55001 + 10000))
 echo -e "\e[1;32mTuic port:$port\e[0m"
