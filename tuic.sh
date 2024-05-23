@@ -83,6 +83,7 @@ if [ -d "/root/tuic" ]; then
             systemctl daemon-reload
             systemctl restart tuic
             public_ip=$(curl -s https://api.ipify.org)
+            isp=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
             echo -e "\e[1;33m\nV2rayN、NekoBox\e[0m"
             echo -e "\e[1;32mtuic://$new_uuid:$password@$public_ip:$new_port?congestion_control=bbr&alpn=h3&sni=www.bing.com&udp_relay_mode=native&allow_insecure=1#$isp\e[0m"
             echo ""
