@@ -100,8 +100,9 @@ if [ -d "/root/tuic" ]; then
             exit 0
             ;;
         *)
-            echo -e "\e[1;33mInvalid choice\e[0m"
-            exit 1
+            echo -e "\e[1;33mExit Installation\e[0m"
+            rm tuic.sh
+            exit 0
             ;;
     esac
 fi
