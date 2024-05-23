@@ -157,13 +157,15 @@ echo ""
 read -p $'\033[1;35mEnter a port (or press enter for a random port between 10000 and 65000): \033[0m' port
 echo ""
 [ -z "$port" ] && port=$((RANDOM % 55001 + 10000))
-echo ""
+echo -e "\e[1;32mTuic port:$port\e[0m"
+
 read -p $'\033[1;35mEnter a password (or press enter for a random password): \033[0m' password
-echo ""
 [ -z "$password" ] && password=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 8 | head -n 1)
+echo -e "\e[1;32mTuic password:$password\e[0m"
 
 # Generate UUID
 UUID=$(openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}')
+echo -e "\e[1;32mTuic UUID:$UUID\e[0m"
 
 # Ensure UUID generation is successful
 if [ -z "$UUID" ]; then
