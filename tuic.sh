@@ -74,12 +74,12 @@ if [ -d "/root/tuic" ]; then
             [ -z "$new_uuid" ] && new_uuid=$(openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}')
             password=$(jq -r '.users[]' /root/tuic/config.json)
             jq ".users = {\"""$new_uuid\":\"$password\"}" /root/tuic/config.json > temp.json && mv temp.json /root/tuic/config.json
-            echo -e "\e[1;32mUUID changed $new_uuid\e[0m"
+            echo -e "\e[1;32mYour new UUID:$new_uuid\e[0m"
             
             read -p $'\033[1;35mEnter a new port (or press enter for a random port): \033[0m' new_port
             [ -z "$new_port" ] && new_port=$(shuf -i 10000-65000 -n 1)
             sed -i "s/\"\[::\]:[0-9]\+\"/\"\[::\]:$new_port\"/" /root/tuic/config.json
-            echo -e "\e[1;32mPORT changed $new_port\e[0m"
+            echo -e "\e[1;32mYour new PORT:$new_port\e[0m"
             systemctl daemon-reload
             systemctl restart tuic
             public_ip=$(curl -s https://api.ipify.org)
