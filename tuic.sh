@@ -95,6 +95,7 @@ if [ -d "/root/tuic" ]; then
             pkill -f tuic-server
             systemctl disable tuic > /dev/null 2>&1
             rm /etc/systemd/system/tuic.service
+            rm tuic.sh
             echo -e "\e[1;32mTuic uninstalled successfully!\e[0m"
             echo ""
             exit 0
