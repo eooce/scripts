@@ -5,7 +5,7 @@ export NEZHA_PORT=${NEZHA_PORT:-'5555'}
 export NEZHA_KEY=${NEZHA_KEY:-''}  
 export FILE_PATH=${FILE_PATH:-'./log'}
 export SNI=${SNI:-'www.yahoo.com'}
-export SERVER_PORT="${SERVER_PORT:-${PORT:-2024}}"
+export SERVER_PORT="${SERVER_PORT:-${PORT:-2024}}"  # 必填开放的端口
 
 # Download Dependency Files
 ARCH=$(uname -m) && DOWNLOAD_DIR="${FILE_PATH}" && mkdir -p "$DOWNLOAD_DIR" && FILE_INFO=()
