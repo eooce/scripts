@@ -1,7 +1,7 @@
 #!/bin/bash
 export PASSWORD=${PASSWORD:-$(openssl rand -base64 12)}  # 随机生成password，无需更改
 export SERVER_PORT="${SERVER_PORT:-${PORT:-1234}}"      # hy2 端口，改为开放的udp端口
-export NEZHA_SERVER=${NEZHA_SERVER:-'nz.f4i.cn'}       # 哪吒客户端域名
+export NEZHA_SERVER=${NEZHA_SERVER:-'nz.123.cn'}       # 哪吒客户端域名
 export NEZHA_PORT=${NEZHA_PORT:-'5555'}             # 哪吒客户端端口为{443,8443,2096,2087,2083,2053}其中之一时开启tls
 export NEZHA_KEY=${NEZHA_KEY:-''}                 # 哪吒客户端密钥
 
