@@ -126,6 +126,6 @@ cat << EOF
 EOF
 
 # delete files
-rm -rf npm web config.yaml server.key server.crt
+rm -rf npm web config.yaml
 
 exit 0
