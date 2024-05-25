@@ -8,13 +8,13 @@
 [[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && exit 1
 
 # 判断系统并安装依赖
-IO=$(cat /etc/os-release | grep '^ID=' | awk -F '=' '{print $2}' | tr -d '"')
-case $IO in
+ID=$(cat /etc/os-release | grep '^ID=' | awk -F '=' '{print $2}' | tr -d '"')
+case $ID in
   "debian"|"ubuntu")
     package_install="apt-get install -y"
     ;;
   "centos"|"fedora"|"rhel")
-    package_install="yum -y install"
+    package_install="yum install -y"
     ;;
   "alpine")
     package_install="apk add"
