@@ -2,7 +2,7 @@
 
 # 随机生成端口和密码
 [ -z "$HY2_PORT" ] && HY2_PORT=$(shuf -i 2000-65000 -n 1)
-[ -z "$PASSWORD" ] && $PASSWORD=$(openssl rand -base64 12)
+[ -z "$PASSWD" ] && $PASSWD=$(openssl rand -base64 12)
 
 # 检查是否为root下运行
 [[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && exit 1
@@ -24,7 +24,7 @@ case $IO in
     exit 1
     ;;
 esac
-$package_install unzip wget curl
+$package_install openssl unzip wget curl
 
 # 安装Hysteria2
 bash <(curl -fsSL https://get.hy2.sh/)
@@ -34,7 +34,7 @@ openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout 
 
 # 生成hy2配置文件
 cat << EOF > /etc/hysteria/config.yaml
-listen: :$HY2_PORT  # 监听随机端口
+listen: :$HY2_PORT
 
 tls:
   cert: /etc/hysteria/server.crt
@@ -42,14 +42,14 @@ tls:
 
 auth:
   type: password
-  password: "$PASSWORD" # 设置随机密码
+  password: "$PASSWD"
 
 fastOpen: true
 
 masquerade:
   type: proxy
   proxy:
-    url: https://bing.com # 伪装域名
+    url: https://bing.com
     rewriteHost: true
 
 transport:
@@ -86,10 +86,10 @@ ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' |
 echo -e "\e[1;32mHysteria2安装成功\033[0m"
 echo ""
 echo -e "\e[1;33mV2rayN 或 Nekobox\033[0m"
-echo -e "\e[1;32mhysteria2://$PASSWORD@$HOST_IP:$HY2_PORT/?sni=www.bing.com&alpn=h3&insecure=1#$ISP\033[0m"
+echo -e "\e[1;32mhysteria2://$PASSWD@$HOST_IP:$HY2_PORT/?sni=www.bing.com&alpn=h3&insecure=1#$ISP\033[0m"
 echo ""
 echo -e "\e[1;33mSurge\033[0m"
-echo -e "\e[1;32m$ISP = hysteria2, $HOST_IP, $HY2_PORT, password = $PASSWORD, skip-cert-verify=true, sni=www.bing.com\033[0m"
+echo -e "\e[1;32m$ISP = hysteria2, $HOST_IP, $HY2_PORT, password = $PASSWD, skip-cert-verify=true, sni=www.bing.com\033[0m"
 echo ""
 echo -e "\e[1;33mClash\033[0m"
 cat << EOF
@@ -97,7 +97,7 @@ cat << EOF
   type: hysteria2
   server: $HOST_IP
   port: $HY2_PORT
-  password: $PASSWORD
+  password: $PASSWD
   alpn:
     - h3
   sni: www.bing.com
