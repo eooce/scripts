@@ -2,34 +2,29 @@
 
 # 随机生成端口和密码
 [ -z "$HY2_PORT" ] && HY2_PORT=$(shuf -i 2000-65000 -n 1)
-[ -z "$RANDOM_PSK" ] && RANDOM_PSK=$(openssl rand -base64 12)
+[ -z "$PASSWORD" ] && $PASSWORD=$(openssl rand -base64 12)
 
 # 检查是否为root下运行
-[[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && sleep 1 && exit 1
+[[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && exit 1
 
-# 判断系统及定义系统安装依赖方式
-DISTRO=$(cat /etc/os-release | grep '^ID=' | awk -F '=' '{print $2}' | tr -d '"')
-case $DISTRO in
+# 判断系统并安装依赖
+IO=$(cat /etc/os-release | grep '^ID=' | awk -F '=' '{print $2}' | tr -d '"')
+case $IO in
   "debian"|"ubuntu")
-    PACKAGE_UPDATE="apt-get update"
-    PACKAGE_INSTALL="apt-get install -y"
-    PACKAGE_REMOVE="apt-get remove -y"
-    PACKAGE_UNINSTALL="apt-get autoremove -y"
+    package_install="apt-get install -y"
     ;;
   "centos"|"fedora"|"rhel")
-    PACKAGE_UPDATE="yum -y update"
-    PACKAGE_INSTALL="yum -y install"
-    PACKAGE_REMOVE="yum -y remove"
-    PACKAGE_UNINSTALL="yum -y autoremove"
+    package_install="yum -y install"
+    ;;
+  "alpine")
+    package_install="apk add"
     ;;
   *)
-    echo "不支持的 Linux 发行版"
+    echo -e '\033[1;35m暂不支持的系统！\033[0m'
     exit 1
     ;;
 esac
-
-# 安装依赖
-$PACKAGE_INSTALL unzip wget curl
+$package_install unzip wget curl
 
 # 安装Hysteria2
 bash <(curl -fsSL https://get.hy2.sh/)
@@ -47,7 +42,7 @@ tls:
 
 auth:
   type: password
-  password: "$RANDOM_PSK" # 设置随机密码
+  password: "$PASSWORD" # 设置随机密码
 
 fastOpen: true
 
@@ -90,11 +85,11 @@ ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' |
 # 输出hy2信息
 echo -e "\e[1;32mHysteria2安装成功\033[0m"
 echo ""
-echo -e "\e[1;33mV2rayN或Nekobox\033[0m"
-echo -e "\e[1;32mhysteria2://$RANDOM_PSK@$HOST_IP:$HY2_PORT/?sni=www.bing.com&alpn=h3&insecure=1#$ISP\033[0m"
+echo -e "\e[1;33mV2rayN 或 Nekobox\033[0m"
+echo -e "\e[1;32mhysteria2://$PASSWORD@$HOST_IP:$HY2_PORT/?sni=www.bing.com&alpn=h3&insecure=1#$ISP\033[0m"
 echo ""
 echo -e "\e[1;33mSurge\033[0m"
-echo -e "\e[1;32m$ISP = hysteria2, $HOST_IP, $HY2_PORT, password = $RANDOM_PSK, skip-cert-verify=true, sni=www.bing.com\033[0m"
+echo -e "\e[1;32m$ISP = hysteria2, $HOST_IP, $HY2_PORT, password = $PASSWORD, skip-cert-verify=true, sni=www.bing.com\033[0m"
 echo ""
 echo -e "\e[1;33mClash\033[0m"
 cat << EOF
@@ -102,7 +97,7 @@ cat << EOF
   type: hysteria2
   server: $HOST_IP
   port: $HY2_PORT
-  password: $RANDOM_PSK
+  password: $PASSWORD
   alpn:
     - h3
   sni: www.bing.com
