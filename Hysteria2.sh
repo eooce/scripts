@@ -8,8 +8,8 @@
 [[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && exit 1
 
 # 判断系统并安装依赖
-ID=$(cat /etc/os-release | grep '^ID=' | awk -F '=' '{print $2}' | tr -d '"')
-case $ID in
+SYSTEM=$(cat /etc/os-release | grep '^ID=' | awk -F '=' '{print $2}' | tr -d '"')
+case $SYSTEM in
   "debian"|"ubuntu")
     package_install="apt-get install -y"
     ;;
