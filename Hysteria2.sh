@@ -2,7 +2,7 @@
 
 # 随机生成端口和密码
 [ -z "$HY2_PORT" ] && HY2_PORT=$(shuf -i 2000-65000 -n 1)
-[ -z "$PASSWD" ] && $PASSWD=$(openssl rand -base64 12)
+[ -z "$PASSWD" ] && PASSWD=$(openssl rand -base64 12)
 
 # 检查是否为root下运行
 [[ $EUID -ne 0 ]] && echo -e '\033[1;35m请在root用户下运行脚本\033[0m' && exit 1
