@@ -2,16 +2,17 @@
 
 # 根据对应系统安装依赖
 distro=$(lsb_release -si)
-
 install_cmd=""
-
 case "$distro" in
     Debian|Ubuntu)
         install_cmd="apt-get install -y"
         ;;
-    CentOS)
+    CentOS|Almalinux|Oracle Linux)
         install_cmd="yum install -y"
         ;;
+    Fedora|Rocky Linux)
+        install_cmd="dnf install -y"
+        ;;        
     Alpine)
         install_cmd="apk add"
         ;;
