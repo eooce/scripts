@@ -1,6 +1,26 @@
 #!/bin/bash
 
-apt-get install sshpass -y
+# 根据对应系统安装依赖
+distro=$(lsb_release -si)
+
+install_cmd=""
+
+case "$distro" in
+    Debian|Ubuntu)
+        install_cmd="apt-get install -y"
+        ;;
+    CentOS)
+        install_cmd="yum install -y"
+        ;;
+    Alpine)
+        install_cmd="apk add"
+        ;;
+    *)
+        echo "Unknown system: $distro"
+        exit 1
+        ;;
+esac
+$install_cmd sshpass
 
 # 服务器列表，格式为 "user@hostname:port:password"
 servers=(
