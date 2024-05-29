@@ -16,10 +16,10 @@ case "$distro" in
     Debian|Ubuntu)
         install_cmd="apt-get install -y"
         ;;
-    CentOS|Almalinux|Oracle-Linux)
+    CentOS|Almalinux|Oracle)
         install_cmd="yum install -y"
         ;;
-    Fedora|Rocky-Linux)
+    Fedora|Rocky)
         install_cmd="dnf install -y"
         ;;        
     Alpine)
