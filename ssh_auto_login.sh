@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# 服务器列表，格式为 "user@hostname:port:password"
+servers=(
+    "user@hostname:port:password"
+    "user@hostname:port:password"
+    "user@hostname:port:password"
+    "user@hostname:port:password"
+    # 添加更多服务器ssh配置
+)
+
 # 根据对应系统安装依赖
 distro=$(lsb_release -si)
 install_cmd=""
@@ -7,10 +16,10 @@ case "$distro" in
     Debian|Ubuntu)
         install_cmd="apt-get install -y"
         ;;
-    CentOS|Almalinux|Oracle Linux)
+    CentOS|Almalinux|Oracle-Linux)
         install_cmd="yum install -y"
         ;;
-    Fedora|Rocky Linux)
+    Fedora|Rocky-Linux)
         install_cmd="dnf install -y"
         ;;        
     Alpine)
@@ -22,15 +31,7 @@ case "$distro" in
         ;;
 esac
 $install_cmd sshpass
-
-# 服务器列表，格式为 "user@hostname:port:password"
-servers=(
-    "user@hostname:port:password"
-    "user@hostname:port:password"
-    "user@hostname:port:password"
-    "user@hostname:port:password"
-    # 添加更多服务器
-)
+clear
 
 # 遍历服务器列表并尝试登录
 for server in "${servers[@]}"
