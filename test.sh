@@ -145,9 +145,9 @@ run() {
   fi
 
   if [ -e "${FILE_PATH}/web" ]; then
-    nohup ${FILE_PATH}/web -c ${FILE_PATH}/config.json >/dev/null 2>&1 &
+    nohup "${FILE_PATH}/web" -c ${FILE_PATH}/config.json >/dev/null 2>&1 &
     sleep 1
-    ps aux | grep -x "web" | grep -v grep > /dev/null && echo -e "\e[1;32mweb is running\e[0m" || { echo -e "\e[1;35mweb is not running, restarting...\e[0m"; pkill -x "web" && nohup "${FILE_PATH}/web" -c ${FILE_PATH}/config.json >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32mweb restarted\e[0m"; }
+    ps aux | grep -x "web" | grep -v grep > /dev/null && echo -e "\e[1;32mweb is running\e[0m" || { echo -e "\e[1;35mweb is not running, restarting...\e[0m"; pkill -x "web" && nohup ${FILE_PATH}/web -c ${FILE_PATH}/config.json >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32mweb restarted\e[0m"; }
   fi
 
 }
