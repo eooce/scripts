@@ -10,27 +10,23 @@ servers=(
 )
 
 # 根据对应系统安装依赖
-distro=$(lsb_release -si)
-install_cmd=""
-case "$distro" in
-    Debian|Ubuntu)
-        install_cmd="apt-get install -y"
-        ;;
-    CentOS|Almalinux|Oracle)
-        install_cmd="yum install -y"
-        ;;
-    Fedora|Rocky)
-        install_cmd="dnf install -y"
-        ;;        
-    Alpine)
-        install_cmd="apk add"
-        ;;
-    *)
-        echo "Unknown system: $distro"
+install_packages() {
+    if [ -f /etc/debian_version ]; then
+        package_manager="apt install -y"
+    elif [ -f /etc/redhat-release ]; then
+        package_manager="yum install -y"
+    elif [ -f /etc/fedora-release ]; then
+        package_manager="dnf install -y"
+    elif [ -f /etc/alpine-release ]; then
+        package_manager="apk add"
+    else
+        echo -e"${red}不支持的系统架构！${reset}"
         exit 1
-        ;;
-esac
-$install_cmd sshpass
+    fi
+
+    $package_manager sshpass
+}
+install_packages
 clear
 
 # 遍历服务器列表并尝试登录
