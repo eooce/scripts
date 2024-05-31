@@ -13,8 +13,11 @@ case $SYSTEM in
   "debian"|"ubuntu")
     package_install="apt-get install -y"
     ;;
-  "centos"|"fedora"|"rhel")
+  "centos"|"oracle"|"rhel")
     package_install="yum install -y"
+    ;;
+  "fedora"|"rocky"|"almalinux")
+    package_install="dnf install -y"
     ;;
   "alpine")
     package_install="apk add"
