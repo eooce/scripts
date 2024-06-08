@@ -2,6 +2,12 @@
 This is a reality no interaction one-click script，only support Debian10+/Ubuntu20+/Centos7+/Fedora8+
 
 # Install
+## sing-box 
+sing-box {vless-reality+vmess+ws+argo+hysteria2+tuic5} one-click script
+```
+bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/sing-box.sh)"
+
+```
 ## Reality
 Run the following command. The PORT can be customized,Removing PORT=8880 it will use a random port
 ```
