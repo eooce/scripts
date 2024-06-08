@@ -458,3 +458,20 @@ while true; do
    esac
    read -p $'\033[1;91m按 回车键 继续...\033[0m'
 done
+
+add_alias() {
+    config_file=$1
+    alias_names=("sb" "SB")
+    [ ! -f "$config_file" ] || touch "$config_file"
+    for alias_name in "${alias_names[@]}"; do
+        if ! grep -q "alias $alias_name=" "$config_file"; then 
+            echo "Adding alias $alias_name to $config_file"
+            echo "alias $alias_name='cd ~ && ./sing-box.sh'" >> "$config_file"
+        fi
+    done
+    . "$config_file"
+}
+config_files=("/root/.bashrc" "/root/.profile" "/root/.bash_profile")
+for config_file in "${config_files[@]}"; do
+    add_alias "$config_file"
+done
