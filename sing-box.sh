@@ -285,13 +285,12 @@ vmess://$(echo "$VMESS" | base64 -w0)
 hysteria2://${uuid}@${server_ip}:${hy2_port}/?sni=www.bing.com&alpn=h3&insecure=1#${isp}
 
 tuic://${uuid}:@${server_ip}:${tuic_port}?sni=www.bing.com&alpn=h3&congestion_control=bbr#${isp}
-
 EOF
 echo ""
 cat ${work_dir}/url.txt
 base64 -w0 ${work_dir}/url.txt > ${work_dir}/sub.txt
 echo ""
-echo -e "${green}节点订阅链接,适用于V2rayN,Nekbox,小火箭,圈X等：http://${server_ip}:${nginx_port}/sub${re}"
+echo -e "${green}节点订阅链接：http://${server_ip}:${nginx_port}/sub  适用于V2rayN,Nekbox,小火箭,圈X等${re}"
 echo ""
 }
 
