@@ -129,7 +129,7 @@ cat > "${config_dir}" << EOF
     "inbounds": [
     {
      "tag": "vless-in",
-     "type": "vmess",
+     "type": "vless",
      "listen": "::",
      "listen_port": ${vless_port},
      "users": [
@@ -167,7 +167,7 @@ cat > "${config_dir}" << EOF
     ],
     "transport": {
       "type": "ws",
-      "path": "/vless",
+      "path": "/vmess",
       "early_data_header_name": "Sec-WebSocket-Protocol"
       }
     },
