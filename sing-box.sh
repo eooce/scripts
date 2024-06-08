@@ -129,7 +129,7 @@ cat > "${config_dir}" << EOF
     "inbounds": [
     {
      "tag": "vless-in",
-     "type": "vless",
+     "type": "vmess",
      "listen": "::",
      "listen_port": ${vless_port},
      "users": [
