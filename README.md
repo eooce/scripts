@@ -3,7 +3,7 @@ This is a reality no interaction one-click script，only support Debian10+/Ubunt
 
 # Install
 ## sing-box 
-sing-box {vless-reality+vmess+ws+argo+hysteria2+tuic-v5} one-click script，The PORT can be customized,for example：PORT=888,Random ports are used by default
+sing-box {vless-reality+vmess+ws+argo+hysteria2+tuic-v5} one-click script
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/sing-box.sh)
 ```
