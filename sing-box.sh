@@ -34,7 +34,7 @@ check_singbox() {
 
 #根据系统类型安装依赖
 install_packages() {
-    packages="jq tar openssl coreutils nginx"
+    packages="jq tar openssl qrencode coreutils nginx"
     install=""
 
     for pkg in $packages; do
@@ -292,6 +292,8 @@ cat ${work_dir}/url.txt
 base64 -w0 ${work_dir}/url.txt > ${work_dir}/sub.txt
 echo ""
 echo -e "${green}节点订阅链接：http://${server_ip}:${nginx_port}/sub  适用于V2rayN,Nekbox,小火箭,圈X等${re}"
+echo ""
+qrencode -t ANSIUTF8 -m 2 -s 2 -o - "http://${server_ip}:${nginx_port}/sub"
 echo ""
 }
 
