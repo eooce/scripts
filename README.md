@@ -1,4 +1,4 @@
-# Reality,Hysteria2,Tuic-v5
+# sing-box, Reality,Hysteria2,Tuic-v5,juicity
 This is a reality no interaction one-click script，only support Debian10+/Ubuntu20+/Centos7+/Fedora8+
 
 # Install
