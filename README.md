@@ -29,7 +29,7 @@ HY2_PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/tuic.sh)
 ```
 
-## Juicuty
+## Juicity
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/juicity.sh)
 ```
