@@ -276,7 +276,7 @@ get_info(){
 
   argodomain=$(grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' "${work_dir}/argo.log" | sed 's@https://@@')
 
-  VMESS="{ \"v\": \"2\", \"ps\": \"${isp}\", \"add\": \"skk.moe\", \"port\": \"443\", \"id\": \"${uuid}\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"${argodomain}\", \"path\": \"/vmess?ed=2048\", \"tls\": \"tls\", \"sni\": \"${argodomain}\", \"alpn\": \"\" }"
+  VMESS="{ \"v\": \"2\", \"ps\": \"${isp}\", \"add\": \"www.visa.com.sg\", \"port\": \"443\", \"id\": \"${uuid}\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"${argodomain}\", \"path\": \"/vmess?ed=2048\", \"tls\": \"tls\", \"sni\": \"${argodomain}\", \"alpn\": \"\" }"
 
   cat > ${work_dir}/url.txt <<EOF
 vless://${uuid}@${server_ip}:${vless_port}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.yahoo.com&fp=chrome&pbk=${public_key}&type=tcp&headerType=none#${isp}
@@ -393,9 +393,9 @@ menu() {
    echo -e "${red}2. 卸载 sing-box${re}"
    echo -e "${green}3. 启动 sing-box${re}"
    echo -e "${yellow}4. 停止 sing-box${re}"
-   echo -e "${yellow}5. 重启 sing-box${re}"
+   echo -e "${green}5. 重启 sing-box${re}"
    echo -e "${green}6. 查看节点信息${re}"
-   echo -e "${yellow}7. 重新获取Argo域名${re}"
+   echo -e "${green}7. 重新获取Argo域名${re}"
    echo -e "${green}=================${re}"
    echo -e "${red}0. 退出脚本${re}"
    echo -e "${green}=================${re}"
@@ -451,7 +451,10 @@ while true; do
            systemctl restart argo
            sleep 3
            argodomain=$(grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' "${work_dir}/argo.log" | sed 's@https://@@')
+           echo ""
            echo -e "${green}ArgoDomain：${re}${purple}$argodomain${re}"
+           echo ""
+           echo -e "${yellow}请自行修改客户端vmess节点伪装域名${re}"
            ;;
        0)
            exit 0
