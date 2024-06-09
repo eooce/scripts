@@ -26,8 +26,15 @@ HY2_PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts
 
 ## Tuic-v5
 ```
-bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/tuic.sh)"
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/tuic.sh)
 ```
+
+## Juicuty
+```
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/juicity.sh)
+```
+
+
 
 ## Uninstall
 ```
