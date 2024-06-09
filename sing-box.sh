@@ -363,10 +363,10 @@ uninstall_singbox() {
 
            # 停止 sing-box 服务
            systemctl stop "${server_name}"
-
+           systemctl stop argo
            # 禁用 sing-box 服务
            systemctl disable "${server_name}"
-
+           systemctl disable argo
            # 删除配置文件和日志
            rm -rf "${work_dir}" || true
            rm -f "${log_dir}" || true
