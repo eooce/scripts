@@ -386,10 +386,9 @@ uninstall_singbox() {
 menu() {
    check_singbox
    check_singbox=$?
-
    clear
    echo -e "${purple}=== 老王sing-box一键安装脚本 ===${re}"
-   echo -e "${green}sing-box 状态: $(if [ ${check_singbox} -eq 0 ]; then echo "${green}running${re}"; else echo "${red}not running${re}"; fi)${re}"
+   echo -e "${green}sing-box 状态: $(if [ ${check_singbox} -eq 0 ]; then echo "${green}running${re}"; else echo "${red}not running${re}"; fi)${re}   ${green}Argo 状态: ${re}$(systemctl is-active argo &>/dev/null && echo -e "${green}running${re}" || echo -e "${red}not running${re}")"
    echo -e "${green}1. 安装 sing-box${re}"
    echo -e "${red}2. 卸载 sing-box${re}"
    echo -e "${green}3. 启动 sing-box${re}"
@@ -397,9 +396,9 @@ menu() {
    echo -e "${yellow}5. 重启 sing-box${re}"
    echo -e "${green}6. 查看节点信息${re}"
    echo -e "${yellow}7. 修改节点配置${re}"
-   echo -e "${green}=========================${re}"
+   echo -e "${green}=================${re}"
    echo -e "${red}0. 退出脚本${re}"
-   echo -e "${green}=========================${re}"
+   echo -e "${green}=================${re}"
    read -p $'\033[1;91m请输入选择(0-7): \033[0m' choice
    echo ""
 }
@@ -448,9 +447,6 @@ while true; do
            ;;
        7)
            echo "该功能尚未添加"
-           ;;
-       8)
-           check_singbox
            ;;
        0)
            exit 0
