@@ -21,7 +21,8 @@ client_url="${work_dir}/url.txt"
 # 检查 sing-box 是否已安装
 check_singbox() {
     if [ -f "${work_dir}/${server_name}" ]; then
-        if ps aux | grep -v grep | grep -q "sing-box"; then
+        status=$(systemctl is-active sing-box)
+        if [ "$status" == "active" ]; then
             return 0
         else
             return 1
