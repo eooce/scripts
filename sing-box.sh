@@ -459,8 +459,8 @@ while true; do
            echo -e "${yellow}请自行修改客户端vmess节点伪装域名${re}"
            ;;
        0)
-           clear
            exit 0
+           clear
            ;;
        *)
            echo -e "${red}无效的选项，请输入 0 到 8${re}"
