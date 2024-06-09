@@ -387,6 +387,7 @@ menu() {
    check_singbox
    check_singbox=$?
    clear
+   echo ""
    echo -e "${purple}=== 老王sing-box一键安装脚本 ===${re}"
    echo -e "${green}sing-box 状态: $(if [ ${check_singbox} -eq 0 ]; then echo "${green}running${re}"; else echo "${red}not running${re}"; fi)${re}   ${green}Argo 状态: ${re}$(systemctl is-active argo &>/dev/null && echo -e "${green}running${re}" || echo -e "${red}not running${re}")"
    echo -e "${green}1. 安装 sing-box${re}"
@@ -460,7 +461,6 @@ while true; do
            ;;
        0)
            exit 0
-           clear
            ;;
        *)
            echo -e "${red}无效的选项，请输入 0 到 8${re}"
