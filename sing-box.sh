@@ -459,6 +459,7 @@ while true; do
            echo -e "${yellow}请自行修改客户端vmess节点伪装域名${re}"
            ;;
        0)
+           clear
            exit 0
            ;;
        *)
