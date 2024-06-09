@@ -361,7 +361,7 @@ uninstall_singbox() {
        y|Y)
            echo -e "${yellow}正在卸载 sing-box${re}"
 
-           # 停止 sing-box 服务
+           # 停止 sing-box和 argo 服务
            systemctl stop "${server_name}"
            systemctl stop argo
            # 禁用 sing-box 服务
@@ -395,7 +395,7 @@ menu() {
    echo -e "${yellow}4. 停止 sing-box${re}"
    echo -e "${yellow}5. 重启 sing-box${re}"
    echo -e "${green}6. 查看节点信息${re}"
-   echo -e "${yellow}7. 修改节点配置${re}"
+   echo -e "${yellow}7. 重新获取Argo域名${re}"
    echo -e "${green}=================${re}"
    echo -e "${red}0. 退出脚本${re}"
    echo -e "${green}=================${re}"
@@ -446,7 +446,12 @@ while true; do
            cat ${work_dir}/url.txt
            ;;
        7)
-           echo "该功能尚未添加"
+           clear
+           systemctl stop argo
+           systemctl restart argo
+           sleep 3
+           argodomain=$(grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' "${work_dir}/argo.log" | sed 's@https://@@')
+           echo -e "${green}ArgoDomain：${re}${purple}$argodomain${re}"
            ;;
        0)
            exit 0
