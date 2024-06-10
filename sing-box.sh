@@ -49,21 +49,21 @@ install_packages() {
     fi
 
     if command -v apt &>/dev/null; then
-        pm="apt-get install -y -q"
+        cmd="apt-get install -y -q"
     elif command -v yum &>/dev/null; then
-        pm="yum install -y"
+        cmd="yum install -y"
     elif command -v dnf &>/dev/null; then
-        pm="dnf install -y"
+        cmd="dnf install -y"
     elif command -v apk &>/dev/null; then
-        pm="apk add"
+        cmd="apk add"
     else
         echo -e "${red}暂不支持的系统!${re}"
         exit 1
     fi
-    $pm $install
+    $cmd $install
 }
 
-# 下载并安装 sing-box,cloudflared
+# 下载并安装主程序
 install_singbox() {
     clear
     echo -e "${purple}正在安装sing-box中，请稍后...${re}"
@@ -480,7 +480,7 @@ while true; do
            exit 0
            ;;
        *)
-           echo -e "${red}无效的选项，请输入 0 到 8${re}"
+           echo -e "${red}无效的选项，请输入 0 到 7${re}"
            ;;
    esac
    read -p $'\033[1;91m按 回车键 继续...\033[0m'
