@@ -383,6 +383,22 @@ uninstall_singbox() {
    esac
 }
 
+# 创建快捷指令
+create_shortcut() {
+  cat > "$work_dir/sb.sh" << EOF
+#!/usr/bin/env bash
+
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/sing-box.sh) \$1
+EOF
+  chmod +x "$work_dir/sb.sh"
+  sudo ln -sf "$work_dir/sb.sh" /usr/bin/sb
+  if [ -s /usr/bin/sb ]; then
+    echo -e "${green}\n sb 快捷指令创建成功${re}"
+  else
+    echo -e "${red}\n sb 快捷指令创建失败${re}"
+  fi
+}
+
 menu() {
    check_singbox
    check_singbox=$?
@@ -427,6 +443,7 @@ while true; do
                 sleep 3
                 get_info
                 add_nginx_conf
+                create_shortcut
            fi
            ;;
        2)
