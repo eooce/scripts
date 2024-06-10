@@ -41,18 +41,18 @@ install_packages() {
     fi
 
     if command -v apt &>/dev/null; then
-        pm="apt-get install -y -q"
+        cmd="apt-get install -y -q"
     elif command -v yum &>/dev/null; then
-        pm="yum install -y"
+        cmd="yum install -y"
     elif command -v dnf &>/dev/null; then
-        pm="dnf install -y"
+        cmd="dnf install -y"
     elif command -v apk &>/dev/null; then
-        pm="apk add"
+        cmd="apk add"
     else
         echo -e "${red}暂不支持的系统!${re}"
         exit 1
     fi
-    $pm $install
+    $cmd $install
 }
 install_packages
 
