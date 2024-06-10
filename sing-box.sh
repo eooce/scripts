@@ -393,9 +393,9 @@ EOF
   chmod +x "$work_dir/sb.sh"
   sudo ln -sf "$work_dir/sb.sh" /usr/bin/sb
   if [ -s /usr/bin/sb ]; then
-    echo -e "${green}\n sb 快捷指令创建成功${re}"
+    echo -e "${green}\nsb 快捷指令创建成功${re}"
   else
-    echo -e "${red}\n sb 快捷指令创建失败${re}"
+    echo -e "${red}\nsb 快捷指令创建失败${re}"
   fi
 }
 
