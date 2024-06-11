@@ -275,7 +275,9 @@ sb_and_argo_systemd
 get_info(){
 
   argodomain=$(grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' "${work_dir}/argo.log" | sed 's@https://@@')
-
+  
+  echo -e "${green}ArgoDomain：${re}${purple}$argodomain${re}"
+  
   VMESS="{ \"v\": \"2\", \"ps\": \"${isp}\", \"add\": \"www.visa.com.sg\", \"port\": \"443\", \"id\": \"${uuid}\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"${argodomain}\", \"path\": \"/vmess?ed=2048\", \"tls\": \"tls\", \"sni\": \"${argodomain}\", \"alpn\": \"\" }"
 
   cat > ${work_dir}/url.txt <<EOF
@@ -288,7 +290,7 @@ hysteria2://${uuid}@${server_ip}:${hy2_port}/?sni=www.bing.com&alpn=h3&insecure=
 tuic://${uuid}:@${server_ip}:${tuic_port}?sni=www.bing.com&alpn=h3&congestion_control=bbr#${isp}
 EOF
 echo ""
-cat ${work_dir}/url.txt
+while IFS= read -r line; do echo -e "${yellow}$line${re}"; done < ${work_dir}/url.txt
 base64 -w0 ${work_dir}/url.txt > ${work_dir}/sub.txt
 echo ""
 echo -e "${green}节点订阅链接：http://${server_ip}:${nginx_port}/sub  适用于V2rayN,Nekbox,小火箭,圈X等${re}"
@@ -463,7 +465,7 @@ while true; do
            restart_singbox
            ;;
        6)
-           cat ${work_dir}/url.txt
+           while IFS= read -r line; do echo -e "${yellow}$line${re}"; done < ${work_dir}/url.txt
            ;;
        7)
            clear
