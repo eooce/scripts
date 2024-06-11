@@ -1,8 +1,8 @@
 #!/bin/bash  
 export UUID=${UUID:-'1f685446-c968-49f0-9fe1-25847585b0b7'}
-export NEZHA_SERVER=${NEZHA_SERVER:-'nz.f4i.cn'} 
+export NEZHA_SERVER=${NEZHA_SERVER:-'nz.abcd.cn'} 
 export NEZHA_PORT=${NEZHA_PORT:-'5555'}     
-export NEZHA_KEY=${NEZHA_KEY:-'RMBUrvgZ5PcomHiXcb'}
+export NEZHA_KEY=${NEZHA_KEY:-''}
 export ARGO_DOMAIN=${ARGO_DOMAIN:-''}   
 export ARGO_AUTH=${ARGO_AUTH:-''} 
 export CFIP=${CFIP:-'www.visa.com.tw'} 
