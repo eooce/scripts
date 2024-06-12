@@ -471,7 +471,7 @@ menu() {
    clear
    echo ""
    echo -e "${purple}=== 老王sing-box一键安装脚本 ===${re}"
-   echo -e "${green}sing-box 状态: $(if [ ${check_singbox} -eq 0 ]; then echo "${green}running${re}"; else echo "${red}not running${re}"; fi)${re}   ${green}Argo 状态: ${re}$([ -f /etc/alpine-release ] && rc-service argo status | grep -q "started" && echo -e "${green}running${re}" || echo -e "${red}not running${re}" || [ "$(systemctl is-active argo)" = "active" ] && echo -e "${green}running${re}" || echo echo -e "${red}not running${re}")"
+   echo -e "${green}sing-box 状态: $(if [ ${check_singbox} -eq 0 ]; then echo "${green}running${re}"; else echo "${red}not running${re}"; fi)${re}   ${green}Argo 状态: ${re}$([ -f /etc/alpine-release ] && rc-service argo status | grep -q "started" && echo -e "${green}running${re}" || echo -e "${red}not running${re}" || [ "$(systemctl is-active argo)" = "active" ] && echo -e "${green}running${re}" || echo -e "${red}not running${re}")"
    echo -e "${green}1. 安装 sing-box${re}"
    echo -e "${red}2. 卸载 sing-box${re}"
    echo -e "${green}=================${re}"
