@@ -174,8 +174,9 @@ install_singbox() {
     uuid=$(cat /proc/sys/kernel/random/uuid)
     password=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 24)
     output=$(/etc/sing-box/sing-box generate reality-keypair)
-    private_key=$(echo "${output}" | grep -oP 'PrivateKey:\s*\K.*')
-    public_key=$(echo "${output}" | grep -oP 'PublicKey:\s*\K.*')
+    private_key=$(echo "${output}" | awk '/PrivateKey:/ {print $2}')
+    public_key=$(echo "${output}" | awk '/PublicKey:/ {print $2}')
+
 
     iptables -A INPUT -p tcp --dport 8001 -j ACCEPT
     iptables -A INPUT -p tcp --dport $vless_port -j ACCEPT
