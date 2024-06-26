@@ -85,3 +85,8 @@ docker stop xrayreality
 ``` bash
 docker rm -f xrayreality
 ```
+
+
+```
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/test2.sh)
+```
