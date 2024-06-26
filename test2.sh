@@ -570,9 +570,9 @@ nginx -t
 if [ $? -eq 0 ]; then
     if [ -f /etc/alpine-release ]; then
     	touch /run/nginx.pid
-     	pkill -f '[n]ginx'
+     	# pkill -f '[n]ginx'
         nginx -s reload
-        rc-service nginx restart
+        # rc-service nginx restart
     else
         rm /run/nginx.pid
         systemctl daemon-reload
