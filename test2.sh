@@ -543,7 +543,7 @@ add_nginx_conf() {
 cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
     cat > /etc/nginx/nginx.conf << EOF
 # nginx_conf
-user nginx;
+user root;
 worker_processes auto;
 error_log /var/log/nginx/error.log;
 pid /run/nginx.pid;
