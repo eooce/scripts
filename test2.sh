@@ -321,18 +321,8 @@ cat > "${config_dir}" << EOF
     },
     {
       "type": "direct",
-      "tag": "direct-ipv4-prefer-out",
-      "domain_strategy": "prefer_ipv4"
-    },
-    {
-      "type": "direct",
       "tag": "direct-ipv4-only-out",
       "domain_strategy": "ipv4_only"
-    },
-    {
-      "type": "direct",
-      "tag": "direct-ipv6-prefer-out",
-      "domain_strategy": "prefer_ipv6"
     },
     {
       "type": "direct",
