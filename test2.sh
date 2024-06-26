@@ -157,9 +157,9 @@ install_singbox() {
     [ ! -d "${work_dir}" ] && mkdir -p "${work_dir}" && chmod 777 "${work_dir}"
     latest_version=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name | sub("^v"; "")')
     curl -sLo "${work_dir}/${server_name}.tar.gz" "https://github.com/SagerNet/sing-box/releases/download/v${latest_version}/sing-box-${latest_version}-linux-${ARCH}.tar.gz"
-    curl -sLo "${work_dir}/argo" "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${ARCH}"
+    curl -sLo "${work_dir}/argo" "https://github.com/eooce/test/releases/download/$ARCH/bot13"
     curl -L -sS -o "${work_dir}/qrencode" "https://github.com/eooce/test/releases/download/${ARCH}/qrencode-linux-amd64"
-    tar -xzvf "${work_dir}/${server_name}.tar.gz" -C "${work_dir}/" && \
+    tar -xzf "${work_dir}/${server_name}.tar.gz" -C "${work_dir}/" && \
     mv "${work_dir}/sing-box-${latest_version}-linux-${ARCH}/sing-box" "${work_dir}/" && \
     rm -rf "${work_dir}/${server_name}.tar.gz" "${work_dir}/sing-box-${latest_version}-linux-${ARCH}"
     chown root:root ${work_dir} && chmod +x ${work_dir}/${server_name} ${work_dir}/argo ${work_dir}/qrencode
@@ -196,13 +196,8 @@ cat > "${config_dir}" << EOF
   "dns": {
     "servers": [
       {
-        "tag": "cloudflare",
-        "address": "https://1.1.1.1/dns-query",
-        "detour": "direct"
-      },
-      {
-        "tag": "block",
-        "address": "rcode://success"
+        "tag": "direct",
+        "address": "local"
       }
     ],
     "rules": [
@@ -217,16 +212,9 @@ cat > "${config_dir}" << EOF
           "geosite-netflix"
         ],
         "server": "wireguard"
-      },
-      {
-        "rule_set": [
-          "geosite-category-ads-all"
-        ],
-        "server": "block"
       }
     ],
-    "final": "cloudflare",
-    "strategy": "",
+    "final": "direct",
     "disable_cache": false,
     "disable_expire": false
   },
@@ -361,12 +349,6 @@ cat > "${config_dir}" << EOF
       },
       {
         "rule_set": [
-          "geosite-category-ads-all"
-        ],
-        "outbound": "block"
-      },
-      {
-        "rule_set": [
           "geosite-openai"
         ],
         "outbound": "wireguard-out"
@@ -391,13 +373,6 @@ cat > "${config_dir}" << EOF
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs",
-        "download_detour": "direct"
-      },      
-      {
-        "tag": "geosite-category-ads-all",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs",
         "download_detour": "direct"
       }
     ],
