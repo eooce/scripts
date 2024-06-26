@@ -320,16 +320,6 @@ cat > "${config_dir}" << EOF
       "tag": "dns-out"
     },
     {
-      "type": "direct",
-      "tag": "direct-ipv4-only-out",
-      "domain_strategy": "ipv4_only"
-    },
-    {
-      "type": "direct",
-      "tag": "direct-ipv6-only-out",
-      "domain_strategy": "ipv6_only"
-    },
-    {
       "type": "wireguard",
       "tag": "wireguard-out",
       "server": "162.159.195.100",
@@ -375,15 +365,13 @@ cat > "${config_dir}" << EOF
         "tag": "geosite-netflix",
         "type": "remote",
         "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-netflix.srs",
-        "download_detour": "direct"
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-netflix.srs"
       },
       {
         "tag": "geosite-openai",
         "type": "remote",
         "format": "binary",
-        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs",
-        "download_detour": "direct"
+        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs"
       }
     ],
     "auto_detect_interface": true,
