@@ -159,7 +159,7 @@ install_singbox() {
     curl -sLo "${work_dir}/${server_name}.tar.gz" "https://github.com/SagerNet/sing-box/releases/download/v${latest_version}/sing-box-${latest_version}-linux-${ARCH}.tar.gz"
     curl -sLo "${work_dir}/argo" "https://github.com/eooce/test/releases/download/$ARCH/bot13"
     curl -L -sS -o "${work_dir}/qrencode" "https://github.com/eooce/test/releases/download/${ARCH}/qrencode-linux-amd64"
-    tar -xzf "${work_dir}/${server_name}.tar.gz" -C "${work_dir}/" && \
+    tar -xzvf "${work_dir}/${server_name}.tar.gz" -C "${work_dir}/" && \
     mv "${work_dir}/sing-box-${latest_version}-linux-${ARCH}/sing-box" "${work_dir}/" && \
     rm -rf "${work_dir}/${server_name}.tar.gz" "${work_dir}/sing-box-${latest_version}-linux-${ARCH}"
     chown root:root ${work_dir} && chmod +x ${work_dir}/${server_name} ${work_dir}/argo ${work_dir}/qrencode
