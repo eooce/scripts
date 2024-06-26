@@ -126,13 +126,12 @@ manage_packages() {
 get_realip() {
   ip=$(curl -s ipv4.ip.sb)
   if [ -z "$ip" ]; then
-      server_ip=$(curl -s --max-time 1 ipv6.ip.sb)
-      echo "[$server_ip]"
+      ipv6=$(curl -s --max-time 1 ipv6.ip.sb)
+      echo "[$ipv6]"
   else
-      org=$(curl -s http://ipinfo.io/$ip | grep '"org":' | awk -F'"' '{print $4}')
-      if echo "$org" | grep -qE 'Cloudflare|UnReal'; then
-          server_ip=$(curl -s --max-time 1 ipv6.ip.sb)
-          echo "[$server_ip]"
+      if echo "$(curl -s http://ipinfo.io/org)" | grep -qE 'Cloudflare|UnReal|AEZA'; then
+          ipv6=$(curl -s --max-time 1 ipv6.ip.sb)
+          echo "[$ipv6]"
       else
           echo "$ip"
       fi
@@ -159,34 +158,31 @@ install_singbox() {
     latest_version=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name | sub("^v"; "")')
     curl -sLo "${work_dir}/${server_name}.tar.gz" "https://github.com/SagerNet/sing-box/releases/download/v${latest_version}/sing-box-${latest_version}-linux-${ARCH}.tar.gz"
     curl -sLo "${work_dir}/argo" "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${ARCH}"
-    curl -L -sS -o ${work_dir}/qrencode https://github.com/eooce/test/releases/download/${ARCH}/qrencode-linux-amd64
+    curl -L -sS -o "${work_dir}/qrencode" "https://github.com/eooce/test/releases/download/${ARCH}/qrencode-linux-amd64"
     tar -xzf "${work_dir}/${server_name}.tar.gz" -C "${work_dir}/" && \
     mv "${work_dir}/sing-box-${latest_version}-linux-${ARCH}/sing-box" "${work_dir}/" && \
     rm -rf "${work_dir}/${server_name}.tar.gz" "${work_dir}/sing-box-${latest_version}-linux-${ARCH}"
     chown root:root ${work_dir} && chmod +x ${work_dir}/${server_name} ${work_dir}/argo ${work_dir}/qrencode
 
    # 生成随机端口和密码
-    vless_port=$(shuf -i 1000-65000 -n 1) 
-    grpc_port=$(($vless_port + 1))
-    tuic_port=$(($vless_port + 2)) 
-    nginx_port=$(($vless_port + 3))
-    hy2_port=$(($vless_port + 4)) 
+    vless_port=$(shuf -i 1000-65535 -n 1) 
+    nginx_port=$(($vless_port + 1)) 
+    tuic_port=$(($vless_port + 2))
+    hy2_port=$(($vless_port + 3)) 
     uuid=$(cat /proc/sys/kernel/random/uuid)
     password=$(< /dev/urandom tr -dc 'A-Za-z0-9' | head -c 24)
     output=$(/etc/sing-box/sing-box generate reality-keypair)
     private_key=$(echo "${output}" | awk '/PrivateKey:/ {print $2}')
     public_key=$(echo "${output}" | awk '/PublicKey:/ {print $2}')
 
-
     iptables -A INPUT -p tcp --dport 8001 -j ACCEPT
     iptables -A INPUT -p tcp --dport $vless_port -j ACCEPT
-    iptables -A INPUT -p tcp --dport $grpc_port -j ACCEPT
     iptables -A INPUT -p udp --dport $hy2_port -j ACCEPT
     iptables -A INPUT -p udp --dport $tuic_port -j ACCEPT
 
     # 生成自签名证书
     openssl ecparam -genkey -name prime256v1 -out "${work_dir}/private.key"
-    openssl req -new -x509 -days 3650 -key "${work_dir}/private.key" -out "${work_dir}/cert.pem" -subj "/CN=www.zara.com"
+    openssl req -new -x509 -days 3650 -key "${work_dir}/private.key" -out "${work_dir}/cert.pem" -subj "/CN=bing.com"
 
    # 生成配置文件
 cat > "${config_dir}" << EOF
@@ -202,7 +198,6 @@ cat > "${config_dir}" << EOF
       {
         "tag": "cloudflare",
         "address": "https://1.1.1.1/dns-query",
-        "strategy": "ipv4_only",
         "detour": "direct"
       },
       {
@@ -265,48 +260,6 @@ cat > "${config_dir}" << EOF
     },
 
     {
-        "tag":"vless-grpc-reality",
-        "type":"vless",
-        "sniff":true,
-        "sniff_override_destination":true,
-        "listen":"::",
-        "listen_port":$grpc_port,
-        "users":[
-            {
-                "uuid":"$uuid"
-            }
-        ],
-        "tls":{
-            "enabled":true,
-            "server_name":"www.zara.com",
-            "reality":{
-                "enabled":true,
-                "handshake":{
-                    "server":"www.zara.com",
-                    "server_port":443
-                },
-                "private_key":"$private_key",
-                "short_id":[
-                    ""
-                ]
-            }
-        },
-        "transport": {
-            "type": "grpc",
-            "service_name": "grpc"
-        },
-        "multiplex":{
-            "enabled":true,
-            "padding":true,
-            "brutal":{
-                "enabled":true,
-                "up_mbps":1000,
-                "down_mbps":1000
-            }
-        }
-    },
-
-    {
         "tag": "vmess-ws",
         "type": "vmess",
         "listen": "::",
@@ -333,7 +286,7 @@ cat > "${config_dir}" << EOF
                 "password": "$uuid"
             }
         ],
-        "masquerade": "https://www.zara.com",
+        "masquerade": "https://bing.com",
         "tls": {
             "enabled": true,
             "alpn": [
@@ -554,751 +507,35 @@ get_info() {
 
   echo -e "${green}\nArgoDomain：${re}${purple}$argodomain${re}"
 
-  yellow "\n温馨提醒：如某个节点不通，请打开V2rayN里的 “跳过证书验证”，或将节点的跳过证书验证设置为“true”\n"
+  yellow "\n温馨提醒：如节点不通，请打开V2rayN里的 “跳过证书验证”，或将节点的跳过证书验证设置为“true”\n"
 
-  VMESS="{ \"v\": \"2\", \"ps\": \"${isp}-vmess-argo\", \"add\": \"www.gov.tw\", \"port\": \"8443\", \"id\": \"${uuid}\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"${argodomain}\", \"path\": \"/vmess?ed=2048\", \"tls\": \"tls\", \"sni\": \"${argodomain}\", \"alpn\": \"\", \"fp\": \"randomized\", \"allowlnsecure\": \"flase\"}"
-  mkdir ${work_dir}/subcribe && chmod 777 ${work_dir}/subcribe
-
-  # 生成clash订阅文件
-cat > ${work_dir}/subcribe/clash.yaml <<EOL
-port: 7890
-allow-lan: true
-mode: rule
-log-level: info
-unified-delay: true
-global-client-fingerprint: chrome
-dns:
-  enable: true
-  listen: :53
-  ipv6: true
-  enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
-  default-nameserver: 
-    - 223.5.5.5
-    - 8.8.8.8
-  nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  fallback:
-    - https://1.0.0.1/dns-query
-    - tls://dns.google
-  fallback-filter:
-    geoip: true
-    geoip-code: CN
-    ipcidr:
-      - 240.0.0.0/4
-
-proxies:
-- name: $isp-vless-tcp-reality             
-  type: vless
-  server: $server_ip                           
-  port: $vless_port                                
-  uuid: $uuid   
-  network: tcp
-  udp: true
-  tls: true
-  flow: xtls-rprx-vision
-  servername: www.zara.com                 
-  reality-opts: 
-    public-key: $public_key   
-    short-id:
-  client-fingerprint: chrome                  
-
-- name: $isp-vless-grpc-reality      
-  type: vless      
-  server: $server_ip                           
-  port: $grpc_port                                
-  uuid: $uuid   
-  network: tcp
-  udp: true
-  tls: true
-  flow: 
-  servername: www.zara.com                 
-  reality-opts: 
-    public-key: $public_key    
-    short-id:                     
-  client-fingerprint: chrome
-  transport: 
-    type: grpc
-    service_name: grpc
-  multiplex:
-    enabled: true
-    padding: true
-    brutal:
-      enabled: true
-      up_mbps: 1000
-      down_mbps: 1000
-
-- name: $isp-vmess-ws-argo                    
-  type: vmess
-  server: www.gov.tw                        
-  port: 443                                     
-  uuid: $uuid       
-  alterId: 0
-  cipher: auto
-  udp: flase
-  tls: true
-  network: ws
-  servername: $argodomain                   
-  ws-opts:
-    path: "/vmess?ed=2048"                             
-    headers:
-      Host: $argodomain
-  alpn: 
-  fp: chrome                    
-
-- name: $isp-hysteria2  
-  type: hysteria2                        
-  server: $server_ip                           
-  port: $hy2_port                                                          
-  password: $uuid                          
-  alpn:
-    - h3
-  sni: www.bing.com                               
-  skip-cert-verify: true
-  fast-open: true
-
-- name: $isp-tuic5                                                             
-  type: tuic
-  server: $server_ip                           
-  port: $tuic_port                                                          
-  uuid: $uuid       
-  password:  
-  alpn: [h3]
-  disable-sni: true
-  reduce-rtt: true
-  udp-relay-mode: native
-  congestion-controller: bbr
-  sni: www.bing.com                                
-  skip-cert-verify: true
-
-proxy-groups:
-- name: 负载均衡
-  type: load-balance
-  url: https://www.gstatic.com/generate_204
-  interval: 300
-  strategy: round-robin
-  proxies:
-    - $isp-vless-tcp-reality
-    - $isp-vless-grpc-reality
-    - $isp-vmess-ws-argo
-    - $isp-hysteria2
-    - $isp-tuic5
-
-- name: 自动选择
-  type: url-test
-  url: https://www.gstatic.com/generate_204
-  interval: 300
-  tolerance: 50
-  proxies:
-    - $isp-vless-tcp-reality
-    - $isp-vless-grpc-reality
-    - $isp-vmess-ws-argo
-    - $isp-hysteria2
-    - $isp-tuic5
-    
-- name: 🌍选择代理节点
-  type: select
-  proxies:
-    - 负载均衡                                         
-    - 自动选择
-    - DIRECT
-    - $isp-vless-tcp-reality
-    - $isp-vless-grpc-reality
-    - $isp-vmess-ws-argo
-    - $isp-hysteria2
-    - $isp-tuic5
-rules:
-  - GEOIP,LAN,DIRECT
-  - GEOIP,CN,DIRECT
-  - MATCH,🌍选择代理节点
-EOL
-
-  # 生成singbox订阅文件
-  cat > ${work_dir}/subcribe/singbox.yaml <<EOL
-{
-  "log": {
-    "level": "warn",
-    "timestamp": false
-  },
-  "experimental": {
-    "clash_api": {
-      "external_controller": "127.0.0.1:9090",
-      "default_mode": "rule"
-    },
-    "cache_file": {
-      "enabled": true,
-      "path": "cache.db",
-      "store_fakeip": true
-    }
-  },
-  "inbounds": [
-    {
-      "type": "tun",
-      "tag": "tun-in",
-      "inet4_address": "172.16.0.1/30",
-      "inet6_address": "fd00::1/126",
-      "mtu": 1400,
-      "auto_route": true,
-      "strict_route": true,
-      "stack": "gvisor",
-      "sniff": true,
-      "sniff_override_destination": false
-    }
-  ],
-  "dns": {
-    "servers": [
-      {
-        "tag": "google",
-        "address": "tls://8.8.4.4"
-      },
-      {
-        "tag": "local",
-        "address": "223.5.5.5",
-        "detour": "direct"
-      },
-      {
-        "tag": "dns-fakeip",
-        "address": "fakeip"
-      },
-      {
-        "tag": "dns-block",
-        "address": "rcode://success"
-      }
-    ],
-    "rules": [
-      {
-        "type": "logical",
-        "mode": "or",
-        "rules": [
-          {
-            "rule_set": "geosite-category-ads-all"
-          },
-          {
-            "domain_suffix": [
-              "appcenter.ms",
-              "app-measurement.com",
-              "firebase.io",
-              "crashlytics.com",
-              "google-analytics.com"
-            ]
-          }
-        ],
-        "disable_cache": true,
-        "server": "dns-block"
-      },
-      {
-        "outbound": "any",
-        "server": "local"
-      },
-      {
-        "query_type": [
-          "A",
-          "AAAA"
-        ],
-        "server": "dns-fakeip"
-      }
-    ],
-    "independent_cache": true,
-    "fakeip": {
-      "enabled": true,
-      "inet4_range": "198.18.0.0/15",
-      "inet6_range": "fc00::/18"
-    }
-  },
-  "outbounds": [
-    {
-      "type": "vless",
-      "tag": "$isp-tcp-reality",
-      "server": "$server_ip",
-      "server_port": $vless_port,
-      "uuid": "$uuid",
-      "flow": "",
-      "packet_encoding": "xudp",
-      "tls": {
-        "enabled": true,
-        "server_name": "www.zara.com",
-        "utls": {
-          "enabled": true,
-          "fingerprint": "chrome"
-        },
-        "reality": {
-          "enabled": true,
-          "public_key": "$public_key",
-          "short_id": ""
-        }
-    },
-    {
-      "type": "vless",
-      "tag": "$isp-grpc-reality",
-      "server": "$server_ip",
-      "server_port": $grpc_port,
-      "uuid": "$uuid",
-      "tls": {
-        "enabled": true,
-        "server_name": "www.zara.com",
-        "utls": {
-          "enabled": true,
-          "fingerprint": "chrome"
-        },
-        "reality": {
-          "enabled": true,
-          "public_key": "$public_key",
-          "short_id": ""
-        }
-      },
-      "packet_encoding": "xudp",
-      "transport": {
-        "type": "grpc",
-        "service_name": "grpc"
-      }
-    },
-    {
-      "type": "vmess",
-      "tag": "$isp-vmess-ws-argo",
-      "server": "www.gov.tw",
-      "server_port": 8443,
-      "uuid": "$uuid",
-      "tls": {
-        "enabled": true,
-        "server_name": "$argodomain",
-        "utls": {
-          "enabled": true,
-          "fingerprint": "chrome"
-        }
-      },
-      "transport": {
-        "type": "ws",
-        "path": "/vmess?ed=2048",
-        "headers": {
-          "Host": "$argodomain"
-        },
-        "max_early_data": 2048,
-        "early_data_header_name": "Sec-WebSocket-Protocol"
-      },
-      "multiplex": {
-        "enabled": true,
-        "protocol": "h2mux",
-        "max_streams": 16,
-        "padding": true,
-        "brutal": {
-          "enabled": true,
-          "up_mbps": 1000,
-          "down_mbps": 1000
-        }
-      }
-    },
-    {
-      "type": "hysteria2",
-      "tag": "$isp-hysteria2",
-      "server": "$server_ip",
-      "server_port": $hy2_port,
-      "up_mbps": 200,
-      "down_mbps": 1000,
-      "password": "$uuid",
-      "tls": {
-        "enabled": true,
-        "insecure": true,
-        "server_name": "www.bing.com",
-        "alpn": [
-          "h3"
-        ]
-      }
-    },
-    {
-      "type": "tuic",
-      "tag": "$isp-tuic",
-      "server": "$server_ip",
-      "server_port": $tuic_port,
-      "uuid": "$uuid",
-      "password": "",
-      "congestion_control": "bbr",
-      "udp_relay_mode": "native",
-      "zero_rtt_handshake": false,
-      "heartbeat": "10s",
-      "tls": {
-        "enabled": true,
-        "insecure": true,
-        "server_name": "www.bing.com",
-        "alpn": [
-          "h3"
-        ]
-      }
-    },
-    {
-      "type": "selector",
-      "tag": "✈️ Proxy",
-      "outbounds": [
-        "♻️ 自动选择",
-        "direct",
-        "$isp-tcp-reality",
-        "$isp-grpc-reality",
-        "$isp-vmess-ws-tls",
-        "$isp-hysteria2",
-        "$isp-tuic"
-      ]
-    },
-    {
-      "type": "urltest",
-      "tag": "♻️ 自动选择",
-      "outbounds": [
-        "$isp-tcp-reality",
-        "$isp-grpc-reality",
-        "$isp-vmess-ws-tls",
-        "$isp-hysteria2",
-        "$isp-tuic"
-      ],
-      "url": "http://www.gstatic.com/generate_204",
-      "interval": "5m",
-      "tolerance": 50
-    },
-    {
-      "type": "selector",
-      "tag": "📱 Telegram",
-      "outbounds": [
-        "♻️ 自动选择",
-        "🎯 direct",
-        "$isp-tcp-reality",
-        "$isp-grpc-reality",
-        "$isp-vmess-ws-tls",
-        "$isp-hysteria2",
-        "$isp-tuic"
-      ]
-    },
-    {
-      "type": "selector",
-      "tag": "▶️ YouTube",
-      "outbounds": [
-        "♻️ 自动选择",
-        "🎯 direct",
-        "$isp-tcp-reality",
-        "$isp-grpc-reality",
-        "$isp-vmess-ws-tls",
-        "$isp-hysteria2",
-        "$isp-tuic"
-      ]
-    },
-    {
-      "type": "selector",
-      "tag": "🤖 OpenAI",
-      "outbounds": [
-        "♻️ 自动选择",
-        "🎯 direct",
-        "$isp-tcp-reality",
-        "$isp-grpc-reality",
-        "$isp-vmess-ws-tls",
-        "$isp-hysteria2",
-        "$isp-tuic"
-      ]
-    },
-    {
-      "type": "selector",
-      "tag": "🎯 direct",
-      "outbounds": [
-        "direct",
-        "block",
-        "✈️ Proxy"
-      ],
-      "default": "direct"
-    },
-    {
-      "type": "selector",
-      "tag": "🛑 block",
-      "outbounds": [
-        "block",
-        "direct",
-        "✈️ Proxy"
-      ],
-      "default": "block"
-    },
-    {
-      "tag": "direct",
-      "type": "direct"
-    },
-    {
-      "tag": "block",
-      "type": "block"
-    },
-    {
-      "tag": "dns",
-      "type": "dns"
-    }
-  ],
-  "route": {
-    "rule_set": [
-      {
-        "tag": "geosite-category-ads-all",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-telegram",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-telegram.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geoip-telegram",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/telegram.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-youtube",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-youtube.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-netflix",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-netflix.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geoip-netflix",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/netflix.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-openai@ads",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-openai@ads.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-openai",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-openai.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-apple",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-apple.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-google",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-google.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geoip-google",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/google.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-microsoft",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-microsoft.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-geolocation-!cn",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-!cn.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-private",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-private.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geosite-cn",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geoip-private",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/private.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      },
-      {
-        "tag": "geoip-cn",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs",
-        "download_detour": "✈️ Proxy",
-        "update_interval": "1d"
-      }
-    ],
-    "rules": [
-      {
-        "clash_mode": "Global",
-        "outbound": "✈️ Proxy"
-      },
-      {
-        "clash_mode": "Direct",
-        "outbound": "🎯 direct"
-      },
-      {
-        "protocol": "dns",
-        "outbound": "dns"
-      },
-      {
-        "type": "logical",
-        "mode": "or",
-        "rules": [
-          {
-            "domain_regex": "^stun\\..+"
-          },
-          {
-            "domain_keyword": [
-              "stun",
-              "httpdns"
-            ]
-          },
-          {
-            "domain_suffix": [
-              "appcenter.ms",
-              "app-measurement.com",
-              "firebase.io",
-              "crashlytics.com",
-              "google-analytics.com"
-            ]
-          },
-          {
-            "protocol": "stun"
-          }
-        ],
-        "outbound": "block"
-      },
-      {
-        "rule_set": "geosite-category-ads-all",
-        "outbound": "✈️ Proxy"
-      },
-      {
-        "rule_set": [
-          "geosite-telegram",
-          "geoip-telegram"
-        ],
-        "outbound": "📱 Telegram"
-      },
-      {
-        "rule_set": "geosite-youtube",
-        "outbound": "▶️ YouTube"
-      },
-      {
-        "rule_set": "geosite-openai@ads",
-        "outbound": "block"
-      },
-      {
-        "type": "logical",
-        "mode": "or",
-        "rules": [
-          {
-            "rule_set": "geosite-openai"
-          },
-          {
-            "domain_regex": "^(bard|gemini)\\.google\\.com$"
-          }
-        ],
-        "outbound": "🤖 OpenAI"
-      },
-      {
-        "rule_set": "geosite-geolocation-!cn",
-        "outbound": "✈️ Proxy"
-      },
-      {
-        "rule_set": [
-          "geosite-private",
-          "geosite-cn",
-          "geoip-private",
-          "geoip-cn"
-        ],
-        "outbound": "🎯 direct"
-      }
-    ],
-    "final": "✈️ Proxy"
-  }
-}
-EOL
-
-  # 生成shadowrocket订阅文件
-  cat > ${work_dir}/subcribe/shadowrocket <<EOF
-vless://$(echo "none:${uuid}@${server_ip}:${vless_port}" | base64 -w0)?remarks=${isp}-tcp-reality&obfs=none&tls=1&peer=www.zara.com&xtls=2&pbk=${public_key}
-vless://$(echo "none:${uuid}@${server_ip}:${grpc_port}" | base64 -w0)?remarks=${isp}-grpc-reality&obfsParam=www.zara.com&path=grpc&obfs=grpc&tls=1&peer=www.zara.com&pbk=${public_key}
-vmess://$(echo "none:${uuid}@www.gov.tw:443" | base64 -w0)?remarks=${isp}-ws-argo&obfsParam=${argodomain}&path=/vmess?ed=2048&obfs=websocket&tls=1&peer=${argodomain}&alterId=0
-hysteria2://${uuid}@${server_ip}:${hy2_port}/?sni=www.bing.com&alpn=h3&insecure=1#${isp}-hy2
-tuic://${uuid}:@${server_ip}:${tuic_port}?sni=www.bing.com&congestion_control=bbr&udp_relay_mode=native&alpn=h3&allow_insecure=1#${isp}-tuic
-EOF
+  VMESS="{ \"v\": \"2\", \"ps\": \"${isp}\", \"add\": \"www.visa.com.sg\", \"port\": \"443\", \"id\": \"${uuid}\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"${argodomain}\", \"path\": \"/vmess?ed=2048\", \"tls\": \"tls\", \"sni\": \"${argodomain}\", \"alpn\": \"\", \"fp\": \"randomized\", \"allowlnsecure\": \"flase\"}"
 
   cat > ${work_dir}/url.txt <<EOF
-vless://${uuid}@${server_ip}:${vless_port}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.zara.com&fp=chrome&pbk=${public_key}&type=tcp&headerType=none#${isp}-tcp-reality
+vless://${uuid}@${server_ip}:${vless_port}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.zara.com&fp=chrome&pbk=${public_key}&type=tcp&headerType=none#${isp}
 
-vless://${uuid}@${server_ip}:${grpc_port}?encryption=none&security=reality&sni=www.zara.com&fp=chrome&pbk=${public_key}&type=grpc&authority=www.zara.com&serviceName=grpc&mode=gun#${isp}-grpc-reality
+vmess://$(echo "$VMESS" | base64 -w0)
 
-vmess://$(echo "$VMESS" | base64 -w0)  
+hysteria2://${uuid}@${server_ip}:${hy2_port}/?sni=www.bing.com&alpn=h3&insecure=1#${isp}
 
-hysteria2://${uuid}@${server_ip}:${hy2_port}/?sni=www.bing.com&alpn=h3&insecure=1#${isp}-hy2
-
-tuic://${uuid}:@${server_ip}:${tuic_port}?sni=www.bing.com&alpn=h3&insecure=1&congestion_control=bbr#${isp}-tuic
+tuic://${uuid}:@${server_ip}:${tuic_port}?sni=www.bing.com&alpn=h3&insecure=1&congestion_control=bbr#${isp}
 EOF
 echo ""
 while IFS= read -r line; do echo -e "${purple}$line"; done < ${work_dir}/url.txt
-base64 -w0 ${work_dir}/url.txt > ${work_dir}/subcribe/sub.txt
+base64 -w0 ${work_dir}/url.txt > ${work_dir}/sub.txt
 echo ""
-green "clash订阅链接：http://${server_ip}:${nginx_port}/${password}/clash"
-$work_dir/qrencode "http://${server_ip}:${nginx_port}/${password}/clash"
-yellow "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-green "\nsingbox订阅链接：http://${server_ip}:${nginx_port}/${password}/singbox"
-$work_dir/qrencode "http://${server_ip}:${nginx_port}/${password}/singbox"
-yellow "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-green "\nshadowrocket订阅链接：http://${server_ip}:${nginx_port}/${password}/shadowrocket"
-$work_dir/qrencode "http://${server_ip}:${nginx_port}/${password}/shadowrocket"
-yellow "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-green "\nV2rayN / nekbox订阅链接：http://${server_ip}:${nginx_port}/${password}/v2rayn"
-$work_dir/qrencode "http://$server_ip/${password}:${nginx_port}/v2rayn"
+green "节点订阅链接：http://$server_ip:$nginx_port/$password\n\n订阅链接适用于V2rayN,Nekbox,Sterisand,Loon,小火箭,圈X等\n"
+$work_dir/qrencode "http://$server_ip:$nginx_port/$password"
 echo ""
 }
 
 # 修复nginx因host无法安装的问题
 fix_nginx() {
     HOSTNAME=$(hostname)
+    NGINX_CONFIG_FILE="/etc/nginx/nginx.conf"
     grep -q "127.0.1.1 $HOSTNAME" /etc/hosts || echo "127.0.1.1 $HOSTNAME" | tee -a /etc/hosts >/dev/null
     id -u nginx >/dev/null 2>&1 || useradd -r -d /var/www -s /sbin/nologin nginx >/dev/null 2>&1
-    grep -q "^user nginx;" /etc/nginx/nginx.conf || sed -i "s/^user .*/user nginx;/" /etc/nginx/nginx.conf >/dev/null 2>&1
+    grep -q "^user nginx;" $NGINX_CONFIG_FILE || sed -i "s/^user .*/user nginx;/" $NGINX_CONFIG_FILE >/dev/null 2>&1
 }
 
 # nginx订阅配置
@@ -1312,62 +549,28 @@ error_log /var/log/nginx/error.log;
 pid /run/nginx.pid;
 
 events {
-    worker_connections 1024; 
+    worker_connections 1024;
 }
 
 http {
-    include       /etc/nginx/mime.types;
-    default_type  application/octet-stream;
-
-    log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
-                      '\$status \$body_bytes_sent "\$http_referer" '
-                      '"\$http_user_agent" "\$http_x_forwarded_for"';
-
-    access_log  /dev/null;
-
-    sendfile        on;
-    keepalive_timeout  65;
-
     server {
-      listen $nginx_port;
+        listen $nginx_port;
+        listen [::]:$nginx_port;
 
-      location ~ ^/$password/v2rayn$ {
+        location /$password {
+        alias /etc/sing-box/sub.txt;
         default_type 'text/plain; charset=utf-8';
-        alias /etc/sing-box/subcribe/sub.txt;
-      }
-
-      location ~ ^/$password/clash$ {
-        default_type 'text/plain; charset=utf-8';
-        alias /etc/sing-box/subcribe/clash.yaml;
-      }
-
-      location ~ ^/$password/singbox$ {
-        default_type 'text/plain; charset=utf-8';
-        alias /etc/sing-box/subcribe/singbox.yaml;
-      }
-
-      location ~ ^/$password/clash$ {
-        default_type 'text/plain; charset=utf-8';
-        alias //etc/sing-box/subcribe/shadowrocket;
-      }
-
-      location ~ ^/$password/(.*)$ {
-        autoindex on;
-        proxy_set_header X-Real-IP \$proxy_protocol_addr;
-        default_type 'text/plain; charset=utf-8';
-        alias /etc/sing-box/subcribe/\$1;
-      }
+        }
     }
 }
-
 EOF
 
 nginx -t
 
 if [ $? -eq 0 ]; then
     if [ -f /etc/alpine-release ]; then
-        touch /run/nginx.pid
-        pkill -f '[n]ginx'
+    	touch /run/nginx.pid
+     	pkill -f '[n]ginx'
         nginx -s reload
         rc-service nginx restart
     else
@@ -1381,7 +584,7 @@ fi
 # 启动 sing-box
 start_singbox() {
 if [ ${check_singbox} -eq 1 ]; then
-    yellow "\n正在启动 ${server_name} 服务\n"
+    yellow "正在启动 ${server_name} 服务\n"
     if [ -f /etc/alpine-release ]; then
         rc-service sing-box start
     else
@@ -1407,7 +610,7 @@ fi
 # 停止 sing-box
 stop_singbox() {
 if [ ${check_singbox} -eq 0 ]; then
-   yellow "\n正在停止 ${server_name} 服务\n"
+   yellow "正在停止 ${server_name} 服务\n"
     if [ -f /etc/alpine-release ]; then
         rc-service sing-box stop
     else
@@ -1433,7 +636,7 @@ fi
 # 重启 sing-box
 restart_singbox() {
 if [ ${check_singbox} -eq 0 ]; then
-   yellow "\n正在重启 ${server_name} 服务\n"
+   yellow "正在重启 ${server_name} 服务\n"
     if [ -f /etc/alpine-release ]; then
         rc-service ${server_name} restart
     else
@@ -1459,7 +662,7 @@ fi
 # 启动 argo
 start_argo() {
 if [ ${check_argo} -eq 1 ]; then
-    yellow "\n正在启动 Argo 服务\n"
+    yellow "正在启动 Argo 服务\n"
     if [ -f /etc/alpine-release ]; then
         rc-service argo start
     else
@@ -1485,7 +688,7 @@ fi
 # 停止 argo
 stop_argo() {
 if [ ${check_argo} -eq 0 ]; then
-    yellow "\n正在停止 Argo 服务\n"
+    yellow "正在停止 Argo 服务\n"
     if [ -f /etc/alpine-release ]; then
         rc-service stop start
     else
@@ -1511,7 +714,7 @@ fi
 # 重启 argo
 restart_argo() {
 if [ ${check_argo} -eq 0 ]; then
-    yellow "\n正在重启 Argo 服务\n"
+    yellow "正在重启 Argo 服务\n"
     if [ -f /etc/alpine-release ]; then
         rc-service argo restart
     else
@@ -1537,7 +740,7 @@ fi
 # 启动 nginx
 start_nginx() {
 if command -v nginx &>/dev/null; then
-    yellow "\n正在启动 nginx 服务\n"
+    yellow "正在启动 nginx 服务\n"
     if [ -f /etc/alpine-release ]; then
         rc-service nginx start
     else
@@ -1559,11 +762,10 @@ fi
 # 重启 nginx
 restart_nginx() {
 if command -v nginx &>/dev/null; then
-    yellow "\n正在重启 nginx 服务\n"
+    yellow "正在重启 nginx 服务\n"
     if [ -f /etc/alpine-release ]; then
         rc-service nginx restart
     else
-        systemctl daemon-reload
         systemctl restart nginx
     fi
     if [ $? -eq 0 ]; then
@@ -1649,7 +851,7 @@ change_hosts() {
 
 # 变更配置
 change_config() {
-if [ ${check_singbox} -ne 2 ]; then
+if [ ${check_singbox} -eq 0 ]; then
     clear
     echo ""
     green "1. 修改端口"
@@ -1664,39 +866,27 @@ if [ ${check_singbox} -ne 2 ]; then
     case "${choice}" in
         1)
             echo ""
-            green "1. 修改tcp-reality端口"
+            green "1. 修改vless-reality端口"
             skyblue "------------"
-            green "1. 修改grpc-reality端口"
+            green "2. 修改hysteria2端口"
             skyblue "------------"
-            green "3. 修改hysteria2端口"
+            green "3. 修改tuic端口"
             skyblue "------------"
-            green "4. 修改tuic端口"
-            skyblue "------------"
-            purple "5. 返回上一级菜单"
+            purple "4. 返回上一级菜单"
             skyblue "------------"
             reading "请输入选择: " choice
             case "${choice}" in
                 1)
-                    reading "\n请输入vless-tcp-reality端口 (回车跳过将使用随机端口): " new_port
+                    reading "\n请输入vless-reality端口 (回车跳过将使用随机端口): " new_port
                     [ -z "$new_port" ] && new_port=$(shuf -i 2000-65000 -n 1)
-                    sed -i '/"tag": "vless-reality-vesion"/,/listen_port/ s/"listen_port": [0-9]\+/"listen_port": '"$new_port"'/' $config_dir
+                    sed -i '/"type": "vless"/,/listen_port/ s/"listen_port": [0-9]\+/"listen_port": '"$new_port"'/' $config_dir
                     restart_singbox
-                    sed -i '0,/vless:\/\/\([^@]*@[^:]*:\)[0-9]\{1,\}/s//vless:\/\/\1'"$new_port"'/' /etc/sing-box/url.txt
+                    sed -i 's/\(vless:\/\/[^@]*@[^:]*:\)[0-9]\{1,\}/\1'"$new_port"'/' $client_dir
                     base64 -w0 /etc/sing-box/url.txt > /etc/sing-box/sub.txt
                     while IFS= read -r line; do yellow "$line"; done < ${work_dir}/url.txt
-                    green "\nvless-tcp-reality端口已修改成：${purple}$new_port${re} ${green}请更新订阅或手动更改vless-tcp-reality端口${re}\n"
+                    green "\nvless-reality端口已修改成：${purple}$new_port${re} ${green}请更新订阅或手动更改vless-reality端口${re}\n"
                     ;;
                 2)
-                    reading "\n请输入vless-grpc-reality端口 (回车跳过将使用随机端口): " new_port
-                    [ -z "$new_port" ] && new_port=$(shuf -i 2000-65000 -n 1)
-                    sed -i '/"tag":"vless-grpc-reality"/,/listen_port/s/"listen_port":[0-9]\{1,\}/"listen_port":'"$new_port"'/' $config_dir
-                    restart_singbox
-                    sed -i '0,/vless:\/\/\([^@]*@[^:]*:\)[0-9]\{1,\}/! {0,/vless:\/\/\([^@]*@[^:]*:\)[0-9]\{1,\}/s//vless:\/\/\1'"$new_port"'/}' $client_dir
-                    base64 -w0 /etc/sing-box/url.txt > /etc/sing-box/sub.txt
-                    while IFS= read -r line; do yellow "$line"; done < ${work_dir}/url.txt
-                    green "\nvless-grpc-reality端口已修改成：${purple}$new_port${re} ${green}请更新订阅或手动更改vless-grpc-reality端口${re}\n"
-                    ;;
-                3)
                     reading "\n请输入hysteria2端口 (回车跳过将使用随机端口): " new_port
                     [ -z "$new_port" ] && new_port=$(shuf -i 2000-65000 -n 1)
                     sed -i '/"type": "hysteria2"/,/listen_port/ s/"listen_port": [0-9]\+/"listen_port": '"$new_port"'/' $config_dir
@@ -1706,7 +896,7 @@ if [ ${check_singbox} -ne 2 ]; then
                     while IFS= read -r line; do yellow "$line"; done < ${work_dir}/url.txt
                     green "\nhysteria2端口已修改为：${purple}${new_port}${re} ${green}请更新订阅或手动更改hysteria2端口${re}\n"
                     ;;
-                4)
+                3)
                     reading "\n请输入tuic端口 (回车跳过将使用随机端口): " new_port
                     [ -z "$new_port" ] && new_port=$(shuf -i 2000-65000 -n 1)
                     sed -i '/"type": "tuic"/,/listen_port/ s/"listen_port": [0-9]\+/"listen_port": '"$new_port"'/' $config_dir
@@ -1716,12 +906,8 @@ if [ ${check_singbox} -ne 2 ]; then
                     while IFS= read -r line; do yellow "$line"; done < ${work_dir}/url.txt
                     green "\ntuic端口已修改为：${purple}${new_port}${re} ${green}请更新订阅或手动更改tuic端口${re}\n"
                     ;;
-                5)
-                    change_config
-                    ;;
-                *)
-                    red "无效的选项，请输入 1 到 4"
-                    ;;
+                4)  change_config ;;
+                *)  red "无效的选项，请输入 1 到 4" ;;
             esac
             ;;
         2)
@@ -1747,18 +933,18 @@ if [ ${check_singbox} -ne 2 ]; then
             ;;
         3)  
             clear
-            green "\n1. www.svix.com\n\n2. www.hubspot.com\n\n3. www.asurion.com\n\n4. www.latamairlines.com"
+            green "\n1. www.ups.com\n\n2. www.svix.com\n\n3. www.cboe.com\n\n4. www.hubspot.com\n"
             reading "\n请输入新的Reality伪装域名(可自定义输入,回车留空将使用默认1): " new_sni
                 if [ -z "$new_sni" ]; then    
+                    new_sni="www.ups.com"
+                elif [[ "$new_sni" == "1" ]]; then
+                    new_sni="www.ups.com"
+                elif [[ "$new_sni" == "2" ]]; then
                     new_sni="www.svix.com"
-                elif [[ "$new_sni" == "1" ]]; then 
-                    new_sni="www.svix.com"
-                elif [[ "$new_sni" == "2" ]]; then 
+                elif [[ "$new_sni" == "3" ]]; then
+                    new_sni="www.cboe.com"
+                elif [[ "$new_sni" == "3" ]]; then
                     new_sni="www.hubspot.com"
-                elif [[ "$new_sni" == "3" ]]; then
-                    new_sni="www.asurion.com"
-                elif [[ "$new_sni" == "3" ]]; then
-                    new_sni="www.latamairlines.com"
                 else
                     new_sni="$new_sni"
                 fi
@@ -1768,18 +954,13 @@ if [ ${check_singbox} -ne 2 ]; then
                 ' "$config_dir" > "$config_file.tmp" && mv "$config_file.tmp" "$config_dir"
                 restart_singbox
                 sed -i "s/\(vless:\/\/[^\?]*\?\([^\&]*\&\)*sni=\)[^&]*/\1$new_sni/" $client_dir
-                sed -i "s/\(vless:\/\/[^\?]*\?\([^\&]*\&\)*authority=\)[^&]*/\1$new_sni/" $client_dir
                 base64 -w0 $client_dir > /etc/sing-box/sub.txt
                 while IFS= read -r line; do yellow "$line"; done < ${work_dir}/url.txt
                 echo ""
                 green "\nReality sni已修改为：${purple}${new_sni}${re} ${green}请更新订阅或手动更改reality节点的sni域名${re}\n"
             ;; 
-        4)
-            menu
-            ;; 
-        *)
-            red "无效的选项！"
-            ;; 
+        4)  menu ;;
+        *)  read "无效的选项！" ;; 
     esac
 else
     yellow "sing-box 尚未安装！"
@@ -1820,14 +1001,14 @@ if [ ${check_singbox} -eq 0 ]; then
             server_ip=$(get_realip)
             password=$(tr -dc A-Za-z < /dev/urandom | head -c 32) 
             sed -i -E "s/(location \/)[^ ]+/\1${password//\//\\/}/" /etc/nginx/nginx.conf
+            sub_port=$(grep -E 'listen [0-9]+;' /etc/nginx/nginx.conf)
             start_nginx
-            green "\n新的节点订阅链接：http://${server_ip}/${password}\n"
+            green "\n新的节点订阅链接：http://$server_ip:$sub_port/$password\n"
             ;; 
 
         3)
-            reading "\n请输入新的订阅端口(1-65535):" sub_port
+            reading "请输入新的订阅端口(1-65535):" sub_port
             [ -z "$sub_port" ] && sub_port=$(shuf -i 2000-65000 -n 1)
-            manage_packages install netstat
             until [[ -z $(netstat -tuln | grep -w tcp | awk '{print $4}' | sed 's/.*://g' | grep -w "$sub_port") ]]; do
                 if [[ -n $(netstat -tuln | grep -w tcp | awk '{print $4}' | sed 's/.*://g' | grep -w "$sub_port") ]]; then
                     echo -e "${red}${new_port}端口已经被其他程序占用，请更换端口重试${re}"
@@ -1882,35 +1063,32 @@ else
     clear
     echo ""
     green "1. 启动Argo服务"
-    skyblue "--------------"
+    skyblue "------------"
     green "2. 停止Argo服务"
-    skyblue "--------------"
+    skyblue "------------"
     green "3. 重启Argo服务"
-    skyblue "--------------"
+    skyblue "------------"
     green "4. 添加Argo固定隧道"
-    skyblue "-------------------"
+    skyblue "----------------"
     green "5. 切换回Argo临时隧道"
-    skyblue "---------------------"
+    skyblue "------------------"
     green "6. 重新获取Argo临时域名"
-    skyblue "-----------------------"
+    skyblue "-------------------"
     purple "7. 返回主菜单"
-    skyblue "-------------"
+    skyblue "-----------"
     reading "\n请输入选择: " choice
     case "${choice}" in
-        1)
-            start_argo ;; 
-        2)
-            stop_argo ;;  
-        3)
-            restart_argo ;; 
+        1)  start_argo ;;
+        2)  stop_argo ;; 
+        3)  restart_argo ;; 
         4)
             clear
-            yellow "\n固定隧道可为json或token，若使用token，隧道端口为8001，自行在cloudflare后台设置\n\njson在f佬维护的站点里获取，获取地址：${purple}https://fscarmen.cloudflare.now.cc${re}\n"
+            yellow "\n固定隧道可为json或token，固定隧道端口为8001，自行在cf后台设置\n\njson在f佬维护的站点里获取，获取地址：${purple}https://fscarmen.cloudflare.now.cc${re}\n"
             reading "\n请输入你的argo域名: " argo_domain
             ArgoDomain=$argo_domain
             reading "\n请输入你的argo密钥(token或json): " argo_auth
             if [[ $argo_auth =~ TunnelSecret ]]; then
-                echo $argo_auth > ${work_dir}/tunnel.json 
+                echo $argo_auth > ${work_dir}/tunnel.json
                 cat > ${work_dir}/tunnel.yml << EOF
 tunnel: $(cut -d\" -f12 <<< "$argo_auth")
 credentials-file: ${work_dir}/tunnel.json
@@ -1974,7 +1152,6 @@ EOF
         7)  menu ;; 
         *)  red "无效的选项！" ;;
     esac
-
 fi
 }
 
@@ -2010,11 +1187,11 @@ check_nodes() {
 if [ ${check_singbox} -eq 0 ]; then
     while IFS= read -r line; do purple "${purple}$line"; done < ${work_dir}/url.txt
     echo ""
-    server_ip=$(curl -s ipv4.ip.sb || { ipv6=$(curl -s --max-time 1 ipv6.ip.sb); echo "[$ipv6]"; })
+    server_ip=$(get_realip)
     lujing=$(grep -oP 'location /\K[^ ]+' "/etc/nginx/nginx.conf")
     green "\n节点订阅链接：http://${server_ip}/${lujing}\n"
 else 
-    yellow "sing-box 尚未安装或未运行,请先安装或启动singbox"
+    yellow "sing-box 尚未安装或未运行,请先安装或启动sing-box"
     sleep 1
     menu
 fi
@@ -2053,7 +1230,7 @@ menu() {
 }
 
 # 捕获 Ctrl+C 信号
-trap 'yellow "已取消操作"; exit' INT
+trap 'red "已取消操作"; exit' INT
 
 # 主循环
 while true; do
@@ -2098,7 +1275,5 @@ while true; do
         0) exit 0 ;;
         *) red "无效的选项，请输入 0 到 8" ;; 
    esac
-  yellow "\n按任意键返回..."
-  read -n 1 -s -r -p ""
-  clear
+   read -n 1 -s -r -p $'\033[1;91m按任意键继续...\033[0m'
 done
