@@ -320,6 +320,26 @@ cat > "${config_dir}" << EOF
       "tag": "dns-out"
     },
     {
+      "type": "direct",
+      "tag": "direct-ipv4-prefer-out",
+      "domain_strategy": "prefer_ipv4"
+    },
+    {
+      "type": "direct",
+      "tag": "direct-ipv4-only-out",
+      "domain_strategy": "ipv4_only"
+    },
+    {
+      "type": "direct",
+      "tag": "direct-ipv6-prefer-out",
+      "domain_strategy": "prefer_ipv6"
+    },
+    {
+      "type": "direct",
+      "tag": "direct-ipv6-only-out",
+      "domain_strategy": "ipv6_only"
+    },
+    {
       "type": "wireguard",
       "tag": "wireguard-out",
       "server": "162.159.195.100",
