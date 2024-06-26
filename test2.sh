@@ -187,206 +187,222 @@ install_singbox() {
    # 生成配置文件
 cat > "${config_dir}" << EOF
 {
-  "log": {
-    "disabled": false,
-    "level": "info",
-    "output": "$work_dir/sb.log",
-    "timestamp": true
-  },
-  "dns": {
-    "servers": [
-      {
-        "tag": "direct",
-        "address": "local"
-      }
-    ],
-    "rules": [
-      {
-        "rule_set": [
-          "geosite-openai"
-        ],
-        "server": "wireguard"
-      },
-      {
-        "rule_set": [
-          "geosite-netflix"
-        ],
-        "server": "wireguard"
-      }
-    ],
-    "final": "direct",
-    "disable_cache": false,
-    "disable_expire": false
-  },
-  "inbounds": [
-    {
-        "tag": "vless-reality-vesion",
-        "type": "vless",
-        "listen": "::",
-        "listen_port": $vless_port,
-        "users": [
-            {
-              "uuid": "$uuid",
-              "flow": "xtls-rprx-vision"
-            }
-        ],
-        "tls": {
-            "enabled": true,
-            "server_name": "www.zara.com",
-            "reality": {
-                "enabled": true,
-                "handshake": {
-                    "server": "www.zara.com",
-                    "server_port": 443
-                },
-                "private_key": "$private_key",
-                "short_id": [
-                  ""
-                ]
-            }
-        }
+    "log": {
+      "disabled": false,
+      "level": "info",
+      "output": "$work_dir/sb.log",
+      "timestamp": true
     },
-
-    {
-        "tag": "vmess-ws",
-        "type": "vmess",
-        "listen": "::",
-        "listen_port": 8001,
-        "users": [
+    "dns": {
+      "servers": [
         {
-            "uuid": "$uuid"
+          "tag": "direct",
+          "address": "local"
+        },
+        {
+           "tag": "Google",
+           "address": "https://dns.google/dns-query",
+           "strategy": "ipv6_only",
+           "detour": "proxy"
         }
-    ],
-    "transport": {
-        "type": "ws",
-        "path": "/vmess",
-        "early_data_header_name": "Sec-WebSocket-Protocol"
-        }
-    },
- 
-    {
-        "tag": "hysteria2",
-        "type": "hysteria2",
-        "listen": "::",
-        "listen_port": $hy2_port,
-        "users": [
-            {
-                "password": "$uuid"
-            }
-        ],
-        "masquerade": "https://bing.com",
-        "tls": {
-            "enabled": true,
-            "alpn": [
-                "h3"
-            ],
-            "certificate_path": "$work_dir/cert.pem",
-            "key_path": "$work_dir/private.key"
-        }
-    },
- 
-    {
-        "tag": "tuic",
-        "type": "tuic",
-        "listen": "::",
-        "listen_port": $tuic_port,
-        "users": [
-          {
-            "uuid": "$uuid"
-          }
-        ],
-        "congestion_control": "bbr",
-        "tls": {
-            "enabled": true,
-            "alpn": [
-                "h3"
-            ],
-        "certificate_path": "$work_dir/cert.pem",
-        "key_path": "$work_dir/private.key"
-       }
-    }
-  ],
-    "outbounds": [
-    {
-      "type": "direct",
-      "tag": "direct"
-    },
-    {
-      "type": "block",
-      "tag": "block"
-    },
-    {
-      "type": "dns",
-      "tag": "dns-out"
-    },
-    {
-      "type": "wireguard",
-      "tag": "wireguard-out",
-      "server": "162.159.195.100",
-      "server_port": 4500,
-      "local_address": [
-        "172.16.0.2/32",
-        "2606:4700:110:83c7:b31f:5858:b3a8:c6b1/128"
       ],
-      "private_key": "mPZo+V9qlrMGCZ7+E6z2NI6NOV34PD++TpAR09PtCWI=",
-      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
-      "reserved": [
-        26,
-        21,
-        228
-      ]
-    }
-  ],
-  "route": {
-    "rules": [
+      "rules": [
+        {
+          "rule_set": [
+            "geosite-openai"
+          ],
+          "server": "wireguard"
+        },
+        {
+          "rule_set": [
+            "geosite-netflix"
+          ],
+          "server": "wireguard"
+        }
+      ],
+      "final": "direct",
+      "disable_cache": false,
+      "disable_expire": false
+    },
+    "inbounds": [
       {
-        "protocol": "dns",
-        "outbound": "dns-out"
+          "tag": "vless-reality-vesion",
+          "type": "vless",
+          "listen": "::",
+          "listen_port": $vless_port,
+          "users": [
+              {
+                "uuid": "$uuid",
+                "flow": "xtls-rprx-vision"
+              }
+          ],
+          "tls": {
+              "enabled": true,
+              "server_name": "www.zara.com",
+              "reality": {
+                  "enabled": true,
+                  "handshake": {
+                      "server": "www.zara.com",
+                      "server_port": 443
+                  },
+                  "private_key": "$private_key",
+                  "short_id": [
+                    ""
+                  ]
+              }
+          }
       },
+  
       {
-        "ip_is_private": true,
-        "outbound": "direct"
+          "tag": "vmess-ws",
+          "type": "vmess",
+          "listen": "::",
+          "listen_port": 8001,
+          "users": [
+          {
+              "uuid": "$uuid"
+          }
+      ],
+      "transport": {
+          "type": "ws",
+          "path": "/vmess",
+          "early_data_header_name": "Sec-WebSocket-Protocol"
+          }
       },
+   
       {
-        "rule_set": [
-          "geosite-openai"
-        ],
-        "outbound": "wireguard-out"
+          "tag": "hysteria2",
+          "type": "hysteria2",
+          "listen": "::",
+          "listen_port": $hy2_port,
+          "users": [
+              {
+                  "password": "$uuid"
+              }
+          ],
+          "masquerade": "https://bing.com",
+          "tls": {
+              "enabled": true,
+              "alpn": [
+                  "h3"
+              ],
+              "certificate_path": "$work_dir/cert.pem",
+              "key_path": "$work_dir/private.key"
+          }
       },
+   
       {
-        "rule_set": [
-          "geosite-netflix"
-        ],
-        "outbound": "wireguard-out"
+          "tag": "tuic",
+          "type": "tuic",
+          "listen": "::",
+          "listen_port": $tuic_port,
+          "users": [
+            {
+              "uuid": "$uuid"
+            }
+          ],
+          "congestion_control": "bbr",
+          "tls": {
+              "enabled": true,
+              "alpn": [
+                  "h3"
+              ],
+          "certificate_path": "$work_dir/cert.pem",
+          "key_path": "$work_dir/private.key"
+         }
       }
     ],
-    "rule_set": [
+      "outbounds": [
       {
-        "tag": "geosite-netflix",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-netflix.srs",
-        "download_detour": "direct"
+        "type": "direct",
+        "tag": "direct"
       },
       {
-        "tag": "geosite-openai",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs",
-        "download_detour": "direct"
+        "type": "block",
+        "tag": "block"
+      },
+      {
+        "type": "dns",
+        "tag": "dns-out"
+      },
+      {
+        "type": "direct",
+        "tag": "direct-ipv4-only-out",
+        "domain_strategy": "ipv4_only"
+      },
+      {
+        "type": "proxy",
+        "tag": "direct-ipv6-only-out",
+        "domain_strategy": "ipv6_only"
+      },
+      {
+        "type": "wireguard",
+        "tag": "wireguard-out",
+        "server": "162.159.195.100",
+        "server_port": 4500,
+        "local_address": [
+          "172.16.0.2/32",
+          "2606:4700:110:83c7:b31f:5858:b3a8:c6b1/128"
+        ],
+        "private_key": "mPZo+V9qlrMGCZ7+E6z2NI6NOV34PD++TpAR09PtCWI=",
+        "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+        "reserved": [
+          26,
+          21,
+          228
+        ]
       }
     ],
-    "auto_detect_interface": true,
-    "final": "direct"
-   },
-   "experimental": {
-      "cache_file": {
-      "enabled": true,
-      "path": "$work_dir/cache.db",
-      "cache_id": "mycacheid",
-      "store_fakeip": true
-    }
-  }
+    "route": {
+      "rules": [
+        {
+          "protocol": "dns",
+          "outbound": "dns-out"
+        },
+        {
+          "ip_is_private": true,
+          "outbound": "direct"
+        },
+        {
+          "rule_set": [
+            "geosite-openai"
+          ],
+          "outbound": "wireguard-out"
+        },
+        {
+          "rule_set": [
+            "geosite-netflix"
+          ],
+          "outbound": "wireguard-out"
+        }
+      ],
+      "rule_set": [
+        {
+          "tag": "geosite-netflix",
+          "type": "remote",
+          "format": "binary",
+          "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-netflix.srs",
+          "download_detour": "proxy"
+        },
+        {
+          "tag": "geosite-openai",
+          "type": "remote",
+          "format": "binary",
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs",
+          "download_detour": "proxy"
+        }
+      ],
+      "auto_detect_interface": true,
+      "final": "direct"
+     },
+     "experimental": {
+        "cache_file": {
+        "enabled": true,
+        "path": "$work_dir/cache.db",
+        "cache_id": "mycacheid",
+        "store_fakeip": true
+      }
+   }
 }
 EOF
 }
@@ -786,7 +802,7 @@ uninstall_singbox() {
            reading "\n是否卸载 Nginx？${green}(卸载请输入 ${yellow}y${re} ${green}回车将跳过卸载Nginx) (y/n): ${re}" choice
             case "${choice}" in
                 y|Y)
-                    manage_packages uninstall nginx jq
+                    manage_packages uninstall nginx
                     ;;
                  *)
                     yellow "取消卸载Nginx\n"
