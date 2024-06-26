@@ -806,7 +806,7 @@ uninstall_singbox() {
            reading "\n是否卸载 Nginx？${green}(卸载请输入 ${yellow}y${re} ${green}回车将跳过卸载Nginx) (y/n): ${re}" choice
             case "${choice}" in
                 y|Y)
-                    manage_packages uninstall nginx
+                    manage_packages uninstall nginx jq
                     ;;
                  *)
                     yellow "取消卸载Nginx\n"
