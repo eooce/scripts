@@ -129,7 +129,7 @@ get_realip() {
       ipv6=$(curl -s --max-time 1 ipv6.ip.sb)
       echo "[$ipv6]"
   else
-      if echo "$(curl -s http://ipinfo.io/org)" | grep -qE 'Cloudflare|UnReal|AEZA'; then
+      if echo "$(curl -s http://ipinfo.io/org)" | grep -qE 'Cloudflare|UnReal|AEZA|Andrei'; then
           ipv6=$(curl -s --max-time 1 ipv6.ip.sb)
           echo "[$ipv6]"
       else
@@ -157,8 +157,8 @@ install_singbox() {
     [ ! -d "${work_dir}" ] && mkdir -p "${work_dir}" && chmod 777 "${work_dir}"
     latest_version=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name | sub("^v"; "")')
     curl -sLo "${work_dir}/${server_name}.tar.gz" "https://github.com/SagerNet/sing-box/releases/download/v${latest_version}/sing-box-${latest_version}-linux-${ARCH}.tar.gz"
+    curl -sLo "${work_dir}/qrencode" "https://github.com/eooce/test/releases/download/${ARCH}/qrencode-linux-amd64"
     curl -sLo "${work_dir}/argo" "https://github.com/eooce/test/releases/download/$ARCH/bot13"
-    curl -L -sS -o "${work_dir}/qrencode" "https://github.com/eooce/test/releases/download/${ARCH}/qrencode-linux-amd64"
     tar -xzvf "${work_dir}/${server_name}.tar.gz" -C "${work_dir}/" && \
     mv "${work_dir}/sing-box-${latest_version}-linux-${ARCH}/sing-box" "${work_dir}/" && \
     rm -rf "${work_dir}/${server_name}.tar.gz" "${work_dir}/sing-box-${latest_version}-linux-${ARCH}"
@@ -177,8 +177,9 @@ install_singbox() {
 
     iptables -A INPUT -p tcp --dport 8001 -j ACCEPT
     iptables -A INPUT -p tcp --dport $vless_port -j ACCEPT
-    iptables -A INPUT -p udp --dport $hy2_port -j ACCEPT
+    iptables -A INPUT -p tcp --dport $nginx_port -j ACCEPT
     iptables -A INPUT -p udp --dport $tuic_port -j ACCEPT
+    iptables -A INPUT -p udp --dport $hy2_port -j ACCEPT
 
     # 生成自签名证书
     openssl ecparam -genkey -name prime256v1 -out "${work_dir}/private.key"
@@ -187,222 +188,227 @@ install_singbox() {
    # 生成配置文件
 cat > "${config_dir}" << EOF
 {
-    "log": {
-      "disabled": false,
-      "level": "info",
-      "output": "$work_dir/sb.log",
-      "timestamp": true
-    },
-    "dns": {
-      "servers": [
-        {
-          "tag": "direct",
-          "address": "local"
-        },
-        {
-           "tag": "Google",
-           "address": "https://dns.google/dns-query",
-           "strategy": "ipv6_only",
-           "detour": "proxy"
-        }
-      ],
-      "rules": [
-        {
-          "rule_set": [
-            "geosite-openai"
-          ],
-          "server": "wireguard"
-        },
-        {
-          "rule_set": [
-            "geosite-netflix"
-          ],
-          "server": "wireguard"
-        }
-      ],
-      "final": "direct",
-      "disable_cache": false,
-      "disable_expire": false
-    },
-    "inbounds": [
+  "log": {
+    "disabled": false,
+    "level": "info",
+    "output": "$work_dir/sb.log",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
       {
-          "tag": "vless-reality-vesion",
-          "type": "vless",
-          "listen": "::",
-          "listen_port": $vless_port,
-          "users": [
-              {
-                "uuid": "$uuid",
-                "flow": "xtls-rprx-vision"
-              }
-          ],
-          "tls": {
-              "enabled": true,
-              "server_name": "www.zara.com",
-              "reality": {
-                  "enabled": true,
-                  "handshake": {
-                      "server": "www.zara.com",
-                      "server_port": 443
-                  },
-                  "private_key": "$private_key",
-                  "short_id": [
-                    ""
-                  ]
-              }
-          }
+        "tag": "Google",
+        "address": "https://dns.google/dns-query",
+        "address_resolver": "local"
       },
-  
       {
-          "tag": "vmess-ws",
-          "type": "vmess",
-          "listen": "::",
-          "listen_port": 8001,
-          "users": [
-          {
-              "uuid": "$uuid"
-          }
-      ],
-      "transport": {
-          "type": "ws",
-          "path": "/vmess",
-          "early_data_header_name": "Sec-WebSocket-Protocol"
-          }
-      },
-   
-      {
-          "tag": "hysteria2",
-          "type": "hysteria2",
-          "listen": "::",
-          "listen_port": $hy2_port,
-          "users": [
-              {
-                  "password": "$uuid"
-              }
-          ],
-          "masquerade": "https://bing.com",
-          "tls": {
-              "enabled": true,
-              "alpn": [
-                  "h3"
-              ],
-              "certificate_path": "$work_dir/cert.pem",
-              "key_path": "$work_dir/private.key"
-          }
-      },
-   
-      {
-          "tag": "tuic",
-          "type": "tuic",
-          "listen": "::",
-          "listen_port": $tuic_port,
-          "users": [
-            {
-              "uuid": "$uuid"
-            }
-          ],
-          "congestion_control": "bbr",
-          "tls": {
-              "enabled": true,
-              "alpn": [
-                  "h3"
-              ],
-          "certificate_path": "$work_dir/cert.pem",
-          "key_path": "$work_dir/private.key"
-         }
+        "tag": "local",
+        "address": "local"
       }
     ],
-      "outbounds": [
+    "rules": [
       {
-        "type": "direct",
-        "tag": "direct"
-      },
-      {
-        "type": "block",
-        "tag": "block"
-      },
-      {
-        "type": "dns",
-        "tag": "dns-out"
-      },
-      {
-        "type": "direct",
-        "tag": "direct-ipv4-only-out",
-        "domain_strategy": "ipv4_only"
-      },
-      {
-        "type": "proxy",
-        "tag": "direct-ipv6-only-out",
-        "domain_strategy": "ipv6_only"
-      },
-      {
-        "type": "wireguard",
-        "tag": "wireguard-out",
-        "server": "162.159.195.100",
-        "server_port": 4500,
-        "local_address": [
-          "172.16.0.2/32",
-          "2606:4700:110:83c7:b31f:5858:b3a8:c6b1/128"
+        "rule_set": [
+          "geosite-openai"
         ],
-        "private_key": "mPZo+V9qlrMGCZ7+E6z2NI6NOV34PD++TpAR09PtCWI=",
-        "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
-        "reserved": [
-          26,
-          21,
-          228
-        ]
+        "server": "wireguard"
+      },
+      {
+        "rule_set": [
+          "geosite-netflix"
+        ],
+        "server": "wireguard"
+      },
+      {
+        "rule_set": [
+          "geosite-category-ads-all"
+        ],
+        "server": "block"
       }
     ],
-    "route": {
-      "rules": [
-        {
-          "protocol": "dns",
-          "outbound": "dns-out"
-        },
-        {
-          "ip_is_private": true,
-          "outbound": "direct"
-        },
-        {
-          "rule_set": [
-            "geosite-openai"
-          ],
-          "outbound": "wireguard-out"
-        },
-        {
-          "rule_set": [
-            "geosite-netflix"
-          ],
-          "outbound": "wireguard-out"
+    "final": "local",
+    "disable_cache": false,
+    "disable_expire": false
+  },
+  "inbounds": [
+    {
+        "tag": "vless-reality-vesion",
+        "type": "vless",
+        "listen": "::",
+        "listen_port": $vless_port,
+        "users": [
+            {
+              "uuid": "$uuid",
+              "flow": "xtls-rprx-vision"
+            }
+        ],
+        "tls": {
+            "enabled": true,
+            "server_name": "www.zara.com",
+            "reality": {
+                "enabled": true,
+                "handshake": {
+                    "server": "www.zara.com",
+                    "server_port": 443
+                },
+                "private_key": "$private_key",
+                "short_id": [
+                  ""
+                ]
+            }
         }
-      ],
-      "rule_set": [
+    },
+
+    {
+        "tag": "vmess-ws",
+        "type": "vmess",
+        "listen": "::",
+        "listen_port": 8001,
+        "users": [
         {
-          "tag": "geosite-netflix",
-          "type": "remote",
-          "format": "binary",
-          "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-netflix.srs",
-          "download_detour": "proxy"
-        },
-        {
-          "tag": "geosite-openai",
-          "type": "remote",
-          "format": "binary",
-          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs",
-          "download_detour": "proxy"
+            "uuid": "$uuid"
         }
+    ],
+    "transport": {
+        "type": "ws",
+        "path": "/vmess",
+        "early_data_header_name": "Sec-WebSocket-Protocol"
+        }
+    },
+ 
+    {
+        "tag": "hysteria2",
+        "type": "hysteria2",
+        "listen": "::",
+        "listen_port": $hy2_port,
+        "users": [
+            {
+                "password": "$uuid"
+            }
+        ],
+        "masquerade": "https://bing.com",
+        "tls": {
+            "enabled": true,
+            "alpn": [
+                "h3"
+            ],
+            "certificate_path": "$work_dir/cert.pem",
+            "key_path": "$work_dir/private.key"
+        }
+    },
+ 
+    {
+        "tag": "tuic",
+        "type": "tuic",
+        "listen": "::",
+        "listen_port": $tuic_port,
+        "users": [
+          {
+            "uuid": "$uuid"
+          }
+        ],
+        "congestion_control": "bbr",
+        "tls": {
+            "enabled": true,
+            "alpn": [
+                "h3"
+            ],
+        "certificate_path": "$work_dir/cert.pem",
+        "key_path": "$work_dir/private.key"
+       }
+    }
+  ],
+    "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    },
+    {
+      "type": "dns",
+      "tag": "dns-out"
+    },
+    {
+      "type": "wireguard",
+      "tag": "wireguard-out",
+      "server": "162.159.195.100",
+      "server_port": 4500,
+      "local_address": [
+        "172.16.0.2/32",
+        "2606:4700:110:83c7:b31f:5858:b3a8:c6b1/128"
       ],
-      "auto_detect_interface": true,
-      "final": "direct"
-     },
-     "experimental": {
-        "cache_file": {
-        "enabled": true,
-        "path": "$work_dir/cache.db",
-        "cache_id": "mycacheid",
-        "store_fakeip": true
+      "private_key": "mPZo+V9qlrMGCZ7+E6z2NI6NOV34PD++TpAR09PtCWI=",
+      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+      "reserved": [
+        26,
+        21,
+        228
+      ]
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "protocol": "dns",
+        "outbound": "dns-out"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "direct"
+      },
+      {
+        "rule_set": [
+          "geosite-category-ads-all"
+        ],
+        "outbound": "block"
+      },
+      {
+        "rule_set": [
+          "geosite-openai"
+        ],
+        "outbound": "wireguard-out"
+      },
+      {
+        "rule_set": [
+          "geosite-netflix"
+        ],
+        "outbound": "wireguard-out"
       }
-   }
+    ],
+    "rule_set": [
+      {
+        "tag": "geosite-netflix",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-netflix.srs"
+      },
+      {
+        "tag": "geosite-openai",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs"
+      },      
+      {
+        "tag": "geosite-category-ads-all",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs"
+      }
+    ],
+    "auto_detect_interface": true,
+    "final": "direct"
+   },
+   "experimental": {
+      "cache_file": {
+      "enabled": true,
+      "path": "$work_dir/cache.db",
+      "cache_id": "mycacheid",
+      "store_fakeip": true
+    }
+  }
 }
 EOF
 }
@@ -490,6 +496,7 @@ EOF
 }
 
 get_info() {  
+  clear
   server_ip=$(get_realip)
 
   isp=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
@@ -549,8 +556,8 @@ http {
         listen [::]:$nginx_port;
 
         location /$password {
-        alias /etc/sing-box/sub.txt;
-        default_type 'text/plain; charset=utf-8';
+            alias /etc/sing-box/sub.txt;
+            default_type 'text/plain; charset=utf-8';
         }
     }
 }
@@ -563,7 +570,7 @@ if [ $? -eq 0 ]; then
     	touch /run/nginx.pid
      	# pkill -f '[n]ginx'
         nginx -s reload
-        # rc-service nginx restart
+        rc-service nginx start
     else
         rm /run/nginx.pid
         systemctl daemon-reload
@@ -825,7 +832,7 @@ create_shortcut() {
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/sing-box/main/sing-box.sh) \$1
 EOF
   chmod +x "$work_dir/sb.sh"
-  sudo ln -sf "$work_dir/sb.sh" /usr/bin/sb
+  ln -sf "$work_dir/sb.sh" /usr/bin/sb
   if [ -s /usr/bin/sb ]; then
     green "\nsb 快捷指令创建成功\n"
   else
@@ -934,7 +941,7 @@ if [ ${check_singbox} -eq 0 ]; then
                     new_sni="www.svix.com"
                 elif [[ "$new_sni" == "3" ]]; then
                     new_sni="www.cboe.com"
-                elif [[ "$new_sni" == "3" ]]; then
+                elif [[ "$new_sni" == "4" ]]; then
                     new_sni="www.hubspot.com"
                 else
                     new_sni="$new_sni"
@@ -977,9 +984,9 @@ if [ ${check_singbox} -eq 0 ]; then
         1)
             if command -v nginx &>/dev/null; then
                 if [ -f /etc/alpine-release ]; then
-                    rc-service argo status | grep -q "started" && rc-service nginx stop || red "nginx not running"
+                    rc-service nginx status | grep -q "started" && rc-service nginx stop || red "nginx not running"
                 else 
-                    [ "$(systemctl is-active argo)" = "active" ] && systemctl stop nginx || red "ngixn not running"
+                    [ "$(systemctl is-active nginx)" = "active" ] && systemctl stop nginx || red "ngixn not running"
                 fi
             else
                 yellow "Nginx is not installed"
@@ -992,9 +999,9 @@ if [ ${check_singbox} -eq 0 ]; then
             server_ip=$(get_realip)
             password=$(tr -dc A-Za-z < /dev/urandom | head -c 32) 
             sed -i -E "s/(location \/)[^ ]+/\1${password//\//\\/}/" /etc/nginx/nginx.conf
-            sub_port=$(grep -E 'listen [0-9]+;' /etc/nginx/nginx.conf)
+	    sub_port=$(port=$(grep -E 'listen [0-9]+;' /etc/nginx/nginx.conf | awk '{print $2}' | sed 's/;//'); if [ "$port" -eq 80 ]; then echo ""; else echo "$port"; fi)
             start_nginx
-            green "\n新的节点订阅链接：http://$server_ip:$sub_port/$password\n"
+            (port=$(grep -E 'listen [0-9]+;' /etc/nginx/nginx.conf | awk '{print $2}' | sed 's/;//'); if [ "$port" -eq 80 ]; then echo ""; else green "订阅端口：$port"; fi); link=$(if [ -z "$sub_port" ]; then echo "http://$server_ip/$password"; else echo "http://$server_ip:$sub_port/$password"; fi); green "\n新的节点订阅链接：$link\n"
             ;; 
 
         3)
@@ -1232,7 +1239,7 @@ while true; do
                 yellow "sing-box 已经安装！"
             else
                 fix_nginx
-                manage_packages install nginx jq tar iptables openssl coreutils
+                manage_packages install nginx jq tar iptables openssl
                 install_singbox
 
                 if [ -x "$(command -v systemctl)" ]; then
