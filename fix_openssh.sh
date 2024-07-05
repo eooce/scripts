@@ -69,7 +69,7 @@ restart_ssh() {
         ubuntu|debian)
             systemctl restart ssh
             ;;
-        centos|rhel|fedora|rocky||almalinux)
+        centos|rhel|fedora|rocky|almalinux)
             systemctl restart sshd
             ;;
         alpine)
