@@ -87,6 +87,12 @@ docker rm -f xrayreality
 ```
 
 
+## nezha-agent 降级
+```
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/nezha.sh)
+```
+
+
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/test2.sh)
 ```
