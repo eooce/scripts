@@ -35,13 +35,13 @@ arch=$(arch)
 
 if [[ $arch == "x86_64" || $arch == "x64" || $arch == "amd64" ]]; then
     arch="64"
-elif [[ $arch == "aarch64" || $arch == "arm64" ]]; then
-    arch="arm64-v8a"
+elif [[ $arch == "aarch64" || $arch == "arm" || $arch == "arm64" ]]; then
+    arch="arm64"
 elif [[ $arch == "s390x" ]]; then
     arch="s390x"
 else
     arch="64"
-    echo -e "${red}检测架构失败，使用默认架构: ${arch}${plain}"
+    echo -e "${red}未知的系统架构: ${arch}${plain}"
 fi
 
 
@@ -123,7 +123,7 @@ echo -e "${green}开始尝试降级Agent"
 
         if [[ "${arch}" == "64" ]]; then
         wget https://github.com/nezhahq/agent/releases/download/v0.15.15/nezha-agent_linux_amd64.zip && unzip nezha-agent_linux_amd64.zip && rm nezha-agent_linux_amd64.zip && mv nezha-agent /opt/nezha/agent/nezha-agent
-        elif [[ "${arch}" == "arm64-v8a" ]]; then
+        elif [[ "${arch}" == "arm64" ]]; then
         wget https://github.com/nezhahq/agent/releases/download/v0.15.15/nezha-agent_linux_arm64.zip && unzip nezha-agent_linux_arm64.zip && rm nezha-agent_linux_arm64.zip && mv nezha-agent /opt/nezha/agent/nezha-agent
         fi
 
