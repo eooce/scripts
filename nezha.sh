@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export VERSION=${VERSION:-'15.15'}  
+
 red="\033[1;91m"
 green="\e[1;32m"
 yellow="\e[1;33m"
@@ -28,7 +30,7 @@ elif cat /proc/version | grep -Eqi "alpine"; then
 elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
     release="centos"
 else
-    echo -e "${red}未检测到系统版本，请联系脚本作者！${plain}\n" && exit 1
+    echo -e "${red}未知系统！${plain}\n" && exit 1
 fi
 
 arch=$(arch)
@@ -88,24 +90,24 @@ fi
 }
 
 Disable_automatic_updates() {
-echo -e "${green}开始 尝试关闭自动更新"
+echo -e "${green}开始修改nezha-agent服务"
 if [[ "${release}" == "alpine" ]]; then
     if [ -f /etc/init.d/nezha-agent ]; then
-        echo -e "${green}/etc/init.d/nezha-agent 存在 开始修改 ${plain}"
+        echo -e "${green}/etc/init.d/nezha-agent服务存在,开始尝试禁用自动更新 ${plain}"
         sed -i '/command_args=/ s/"$/ --disable-auto-update --disable-force-update"/' /etc/init.d/nezha-agent
         echo -e "${green}=========================================== ${plain}"
         cat /etc/init.d/nezha-agent  
     else
-       echo -e "${yellow}/etc/init.d/nezha-agent 不存在 请尝试手动修改 ${plain}"
+        echo -e "${yellow}/etc/init.d/nezha-agent服务不存在,请尝试手动修改${plain}"
     fi
 else
     if [ -f /etc/systemd/system/nezha-agent.service ]; then
-        echo -e "${green}/etc/systemd/system/nezha-agent.service 存在 开始修改 ${plain}"
+        echo -e "${green}/etc/systemd/system/nezha-agent.service服务存在,开始尝试禁用自动更新${plain}"
         sudo sed -i '/^ExecStart=/ s/$/ --disable-auto-update --disable-force-update/' /etc/systemd/system/nezha-agent.service
         echo -e "${green}=========================================== ${plain}"   
         cat /etc/systemd/system/nezha-agent.service
     else
-       echo -e "${yellow}/etc/systemd/system/nezha-agent.service 不存在 请尝试手动修改 ${plain}"
+        echo -e "${yellow}/etc/systemd/system/nezha-agent.service服务不存在,请尝试手动修改${plain}"
     fi
 fi
 }
@@ -114,22 +116,21 @@ Downlond_agent(){
 echo -e "${green}开始尝试降级Agent"
     if [ -f /opt/nezha/agent/nezha-agent ]; then
         echo -e "${green}=========================================== ${plain}"        
-        echo -e "${green}/opt/nezha/agent/nezha-agent 存在 开始尝试降级 ${plain}"
+        echo -e "${green}/opt/nezha/agent/nezha-agent存在,开始尝试降级到${VERSION}${plain}"
         echo -e "${green}检测到系统为: ${release} 架构: ${arch} ${plain}"
 
         if [[ "${arch}" == "amd64" ]]; then
-        wget https://github.com/nezhahq/agent/releases/download/v0.15.15/nezha-agent_linux_amd64.zip && unzip nezha-agent_linux_amd64.zip && rm nezha-agent_linux_amd64.zip && mv nezha-agent /opt/nezha/agent/nezha-agent
+            wget https://github.com/nezhahq/agent/releases/download/v0.${VERSION}/nezha-agent_linux_amd64.zip && unzip nezha-agent_linux_amd64.zip && rm nezha-agent_linux_amd64.zip && mv nezha-agent /opt/nezha/agent/nezha-agent
         elif [[ "${arch}" == "arm64" ]]; then
-        wget https://github.com/nezhahq/agent/releases/download/v0.15.15/nezha-agent_linux_arm64.zip && unzip nezha-agent_linux_arm64.zip && rm nezha-agent_linux_arm64.zip && mv nezha-agent /opt/nezha/agent/nezha-agent
+            wget https://github.com/nezhahq/agent/releases/download/v0.${VERSION}/nezha-agent_linux_arm64.zip && unzip nezha-agent_linux_arm64.zip && rm nezha-agent_linux_arm64.zip && mv nezha-agent /opt/nezha/agent/nezha-agent
         fi
-
     else
-       echo -e "${yellow}/opt/nezha/agent/nezha-agent 不存在 请尝试手动降级 ${plain}"
+       echo -e "${yellow}/opt/nezha/agent/nezha-agent不存在,请尝试手动降级${plain}"
     fi
 }
 
 restart_agent(){
-echo -e "${green}开始尝试重启Agent${plain}"
+echo -e "${green}开始尝试重启agent服务${plain}"
 if [[ "${release}" == "centos" ]]; then
 sudo systemctl daemon-reload
 systemctl restart nezha-agent
