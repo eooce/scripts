@@ -40,9 +40,9 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/juicity.s
  bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/uninstall.sh)"
 ``` 
 
-## 一键修复openssl漏洞 
+## 一键修复openssh漏洞 
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/fix_openssl.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/fix_openssh.sh)
 ```
 
 ## nezha-agent 降级
