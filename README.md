@@ -92,7 +92,7 @@ docker rm -f xrayreality
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/nezha.sh)
 ```
 
-
+## 测试 勿用
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/test2.sh)
 ```
