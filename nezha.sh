@@ -150,7 +150,7 @@ else
 fi
 }
 
-echo -e "${green}开始运行 检测到系统为: ${release} 架构: ${arch} ${plain}"
+echo -e "${green}当前系统为: ${release} 架构: ${arch} ${plain}"
 
 install_base
 Disable_automatic_updates
