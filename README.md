@@ -35,57 +35,15 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/juicity.s
 ```
 
 
-
 ## Uninstall
 ```
  bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/uninstall.sh)"
 ``` 
 
-## Installation Guide with Docker 
-
-0. install docker 
-``` bash
-curl -fsSL https://get.docker.com | sh
+## 一键修复openssl漏洞 
 ```
-1. clone this project 
-``` bash
-git clone https://github.com/eooce/scripts && cd xray-reality
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/fix_openssl.sh)
 ```
-2. build docker image 
-``` bash
-docker build -t xrayreality .
-```
-3. run 
-``` bash
- docker run -d --name xrayreality -p443:443 xrayreality
-```
-4. get connection config :
-> get url
-``` bash
-docker exec -it xrayreality cat /root/reality.txt
-```
-> view qrcode 
-``` bash
-docker exec -it xrayreality sh -c 'qrencode -s 120 -t ANSIUTF8 $(cat /root/reality.txt)'
-```
-## how to manage ?
-> status :
-``` bash
-docker ps -a | grep xrayreality
-```
-> stop :
-``` bash
-docker stop xrayreality
-```
-> start :
-``` bash
-docker stop xrayreality
-```
->remove :
-``` bash
-docker rm -f xrayreality
-```
-
 
 ## nezha-agent 降级
 可在一键命令前加上自定义版本号随脚本一起运行即可自定义版本，例如：VERSION=16.11
