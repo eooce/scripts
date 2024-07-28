@@ -34,16 +34,15 @@ fi
 arch=$(arch)
 
 if [[ $arch == "x86_64" || $arch == "x64" || $arch == "amd64" ]]; then
-    arch="64"
+    arch="amd64"
 elif [[ $arch == "aarch64" || $arch == "arm" || $arch == "arm64" ]]; then
     arch="arm64"
 elif [[ $arch == "s390x" ]]; then
     arch="s390x"
 else
-    arch="64"
+    arch="amd64"
     echo -e "${red}未知的系统架构: ${arch}${plain}"
 fi
-
 
 
 if [ "$(getconf WORD_BIT)" != '32' ] && [ "$(getconf LONG_BIT)" != '64' ] ; then
@@ -111,17 +110,14 @@ else
 fi
 }
 
-
-
-
-Downgrade_agent(){
+Downlond_agent(){
 echo -e "${green}开始尝试降级Agent"
     if [ -f /opt/nezha/agent/nezha-agent ]; then
         echo -e "${green}=========================================== ${plain}"        
         echo -e "${green}/opt/nezha/agent/nezha-agent 存在 开始尝试降级 ${plain}"
         echo -e "${green}检测到系统为: ${release} 架构: ${arch} ${plain}"
 
-        if [[ "${arch}" == "64" ]]; then
+        if [[ "${arch}" == "amd64" ]]; then
         wget https://github.com/nezhahq/agent/releases/download/v0.15.15/nezha-agent_linux_amd64.zip && unzip nezha-agent_linux_amd64.zip && rm nezha-agent_linux_amd64.zip && mv nezha-agent /opt/nezha/agent/nezha-agent
         elif [[ "${arch}" == "arm64" ]]; then
         wget https://github.com/nezhahq/agent/releases/download/v0.15.15/nezha-agent_linux_arm64.zip && unzip nezha-agent_linux_arm64.zip && rm nezha-agent_linux_arm64.zip && mv nezha-agent /opt/nezha/agent/nezha-agent
@@ -130,12 +126,10 @@ echo -e "${green}开始尝试降级Agent"
     else
        echo -e "${yellow}/opt/nezha/agent/nezha-agent 不存在 请尝试手动降级 ${plain}"
     fi
-
-
 }
 
 restart_agent(){
-echo -e "${green}开始尝试重启Agent"
+echo -e "${green}开始尝试重启Agent${plain}"
 if [[ "${release}" == "centos" ]]; then
 sudo systemctl daemon-reload
 systemctl restart nezha-agent
@@ -148,8 +142,13 @@ else
     sudo systemctl daemon-reload
     systemctl restart nezha-agent
 fi
-}
 
+if [ $? -eq 0 ]; then
+    echo -e "${green}nezha-agent服务已成功重启\n${plain}"
+else
+    echo -e "${red}nezha-agent服务重启失败\n${plain}"
+fi
+}
 
 echo -e "${green}开始运行 检测到系统为: ${release} 架构: ${arch} ${plain}"
 
@@ -158,5 +157,5 @@ Disable_automatic_updates
 sleep 1
         echo -e "${green}=========================================== ${plain}" 
         echo -e "${green}请自行判断配置是否正确 ${plain}" 
-Downgrade_agent
+Downlond_agent
 restart_agent
