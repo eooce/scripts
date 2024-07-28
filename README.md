@@ -88,6 +88,7 @@ docker rm -f xrayreality
 
 
 ## nezha-agent 降级
+可在一键命令前加上自定义版本号随脚本一起运行即可自定义版本，例如：VERSION=16.12
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/nezha.sh)
 ```
