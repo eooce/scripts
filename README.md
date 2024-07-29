@@ -45,10 +45,16 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/juicity.s
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/fix_openssh.sh)
 ```
 
-## nezha-agent 降级
-可在一键命令前加上自定义版本号随脚本一起运行即可自定义版本，例如：VERSION=16.11
+## 哪吒面板一键降级
+可在一键命令前加上自定义版本号随脚本一起运行即可自定义版本，默认18.0，例如：VERSION=18.0
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/nezha.sh)
+```
+
+## nezha-agent降级
+可在一键命令前加上自定义版本号随脚本一起运行即可自定义版本，例如：VERSION=16.11
+```
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/agent.sh)
 ```
 
 ## 测试 勿用
