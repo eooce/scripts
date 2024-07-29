@@ -818,24 +818,24 @@ show_usage() {
 show_menu() {
     echo -e "
     ${green}哪吒监控管理脚本${plain} ${red}${VERSION}${plain}
-    --- https://github.com/naiba/nezha ---
-    ${green}1.${plain}  安装面板端
-    ${green}2.${plain}  修改面板配置
-    ${green}3.${plain}  启动面板
-    ${green}4.${plain}  停止面板
-    ${yellow}5.${plain}  重启并降级面板
-    ${green}6.${plain}  查看面板日志
-    ${green}7.${plain}  卸载管理面板
+    --- https://github.com/eooce ---
+    ${green}1.  安装面板端${plain}
+    ${green}2.  修改面板配置${plain}
+    ${green}3.  启动面板${plain}
+    ${green}4.  停止面板${plain} 
+    ${yellow}5. 重启并降级面板${plain}
+    ${green}6.  查看面板日志${plain} 
+    ${green}7.  卸载管理面板${plain}
     ————————————————-
-    ${green}8.${plain}  安装监控Agent
-    ${green}9.${plain}  修改Agent配置
-    ${green}10.${plain} 查看Agent日志
-    ${green}11.${plain} 卸载Agent
-    ${green}12.${plain} 重启Agent
+    ${green}8.  安装监控Agent指定版本${plain}
+    ${green}9.  修改Agent配置${plain}
+    ${green}10. 查看Agent日志${plain}
+    ${green}11. 卸载Agent${plain}
+    ${green}12. 重启Agent${plain}
     ————————————————-
-    ${green}13.${plain} 更新脚本
+    ${green}13. 更新脚本${plain}
     ————————————————-
-    ${green}0.${plain}  退出脚本
+    ${green}0.  退出脚本${plain}
     "
     echo && read -ep "请输入选择 [0-13]: " num
     if [[ $IS_DOCKER_NEZHA == 1 ]]; then
