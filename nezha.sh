@@ -20,62 +20,85 @@ os_arch=""
 [ -e /etc/os-release ] && cat /etc/os-release | grep -i "PRETTY_NAME" | grep -qi "alpine" && os_alpine='1'
 
 pre_check() {
+
     [ "$os_alpine" != 1 ] && ! command -v systemctl >/dev/null 2>&1 && echo "不支持此系统：未找到 systemctl 命令" && exit 1
 
     # check root
     [[ $EUID -ne 0 ]] && echo -e "${red}错误: 请使用root用户运行此脚本！${plain}\n" && exit 1
 
     ## os_arch
-    if [[ $(uname -m | grep 'x86_64') != "" ]]; then
+    if uname -m | grep -q 'x86_64'; then
         os_arch="amd64"
-        elif [[ $(uname -m | grep 'i386\|i686') != "" ]]; then
+    elif uname -m | grep -q 'i386\|i686'; then
         os_arch="386"
-        elif [[ $(uname -m | grep 'aarch64\|armv8b\|armv8l') != "" ]]; then
+    elif uname -m | grep -q 'aarch64\|armv8b\|armv8l'; then
         os_arch="arm64"
-        elif [[ $(uname -m | grep 'arm') != "" ]]; then
+    elif uname -m | grep -q 'arm'; then
         os_arch="arm"
-        elif [[ $(uname -m | grep 's390x') != "" ]]; then
+    elif uname -m | grep -q 's390x'; then
         os_arch="s390x"
-        elif [[ $(uname -m | grep 'riscv64') != "" ]]; then
+    elif uname -m | grep -q 'riscv64'; then
         os_arch="riscv64"
     fi
 
     ## China_IP
-    if [[ -z "${CN}" ]]; then
-        if [[ $(curl -m 10 -s https://ipapi.co/json | grep 'China') != "" ]]; then
-            echo "根据ipapi.co提供的信息，当前IP可能在中国"
-            read -e -r -p "是否选用中国镜像完成安装? [Y/n] " input
+    if [ -z "$CN" ]; then
+        if [ ! -z "$isCN" ]; then
+            echo "根据geoip api提供的信息，当前IP可能在中国"
+            printf "是否选用中国镜像完成安装? [Y/n] (自定义镜像输入 3):"
+            read -r input
             case $input in
-                [yY][eE][sS] | [yY])
-                    echo "使用中国镜像"
-                    CN=true
+            [yY][eE][sS] | [yY])
+                echo "使用中国镜像"
+                CN=true
                 ;;
 
-                [nN][oO] | [nN])
-                    echo "不使用中国镜像"
+            [nN][oO] | [nN])
+                echo "不使用中国镜像"
                 ;;
+
+            [3])
+                echo "使用自定义镜像"
+                printf "请输入自定义镜像 (例如:dn-dao-github-mirror.daocloud.io),留空为不使用: "
+                read -r input
+                case $input in
                 *)
-                    echo "使用中国镜像"
-                    CN=true
+                    CUSTOM_MIRROR=$input
+                    ;;
+                esac
+
+                ;;
+            *)
+                echo "使用中国镜像"
+                CN=true
                 ;;
             esac
         fi
     fi
 
-    if [[ -z "${CN}" ]]; then
-        GITHUB_RAW_URL="raw.githubusercontent.com/naiba/nezha/master"
-        GITHUB_URL="github.com"
-        Get_Docker_URL="get.docker.com"
-        Get_Docker_Argu=" "
-        Docker_IMG="ghcr.io\/naiba\/nezha-dashboard"
-        GITHUB_RELEASE_URL="github.com/naiba/nezha/releases/${NZ_VERSION}/download"
-    else
-        GITHUB_RAW_URL="jihulab.com/nezha/dashboard/-/raw/master"
-        GITHUB_URL="dn-dao-github-mirror.daocloud.io"
+    if [ -n "$CUSTOM_MIRROR" ]; then
+        GITHUB_RAW_URL="gitee.com/naibahq/nezha/raw/master"
+        GITHUB_URL=$CUSTOM_MIRROR
         Get_Docker_URL="get.docker.com"
         Get_Docker_Argu=" -s docker --mirror Aliyun"
         Docker_IMG="registry.cn-shanghai.aliyuncs.com\/naibahq\/nezha-dashboard"
-        GITHUB_RELEASE_URL="hub.fgit.cf/naiba/nezha/releases/${NZ_VERSION}/download"
+        GITHUB_RELEASE_URL="https://gitee.com/naibahq/nezha/releases/download/${NZ_VERSION}"
+    else
+        if [ -z "$CN" ]; then
+            GITHUB_RAW_URL="raw.githubusercontent.com/naiba/nezha/master"
+            GITHUB_URL="github.com"
+            Get_Docker_URL="get.docker.com"
+            Get_Docker_Argu=" "
+            Docker_IMG="ghcr.io\/naiba\/nezha-dashboard"
+            GITHUB_RELEASE_URL="https://github.com/naiba/nezha/releases/download/${NZ_VERSION}"
+        else
+            GITHUB_RAW_URL="gitee.com/naibahq/nezha/raw/master"
+            GITHUB_URL="gitee.com"
+            Get_Docker_URL="get.docker.com"
+            Get_Docker_Argu=" -s docker --mirror Aliyun"
+            Docker_IMG="registry.cn-shanghai.aliyuncs.com\/naibahq\/nezha-dashboard"
+            GITHUB_RELEASE_URL="https://gitee.com/naibahq/nezha/releases/download/${NZ_VERSION}" 
+        fi
     fi
 }
 
@@ -265,9 +288,17 @@ install_agent() {
     mkdir -p $NZ_AGENT_PATH
     chmod 777 -R $NZ_AGENT_PATH
 
-    echo -e "正在下载监控端"
-    wget -t 2 -T 10 -O nezha-agent_linux_${os_arch}.zip https://${GITHUB_URL}/nezhahq/agent/releases/download/${NZ_VERSION}/nezha-agent_linux_${os_arch}.zip >/dev/null 2>&1
-    if [[ $? != 0 ]]; then
+    echo -e "${yellow}正在下载监控端${plain}"
+
+    if [ -z "$CN" ]; then
+        NZ_AGENT_URL="https://${GITHUB_URL}/nezhahq/agent/releases/download/${NZ_VERSION}/nezha-agent_linux_${os_arch}.zip"
+    else
+        NZ_AGENT_URL="https://${GITHUB_URL}/naibahq/agent/releases/download/${NZ_VERSION}/nezha-agent_linux_${os_arch}.zip"
+    fi
+
+    wget -t 2 -T 60 -O nezha-agent_linux_${os_arch}.zip $NZ_AGENT_URL >/dev/null 2>&1
+
+    if [[ $? != 0 ]]; then                            
         echo -e "${red}Release 下载失败，请检查本机能否连接 ${GITHUB_URL}${plain}"
         return 0
     fi
@@ -289,22 +320,6 @@ install_agent() {
 
 modify_agent_config() {
     echo -e "> 修改Agent配置"
-
-    if [ "$os_alpine" != 1 ];then
-        wget -t 2 -T 10 -O $NZ_AGENT_SERVICE https://${GITHUB_RAW_URL}/script/nezha-agent.service >/dev/null 2>&1
-        if [[ $? != 0 ]]; then
-            echo -e "${red}文件下载失败，请检查本机能否连接 ${GITHUB_RAW_URL}${plain}"
-            return 0
-        fi
-    else
-        wget -t 2 -T 10 -O $NZ_AGENT_SERVICERC https://${GITHUB_RAW_URL}/script/nezha-agent >/dev/null 2>&1
-        chmod +x $NZ_AGENT_SERVICERC
-        if [[ $? != 0 ]]; then
-            echo -e "${red}Fail to download service, please check if the network can link ${GITHUB_RAW_URL}${plain}"
-            return 0
-        fi
-    fi
-
     if [ $# -lt 3 ]; then
         echo "请先在管理面板上添加Agent，记录下密钥" &&
         read -ep "请输入一个解析到面板所在IP的域名（不可套CDN）: " nz_grpc_host &&
@@ -331,27 +346,72 @@ modify_agent_config() {
     fi
 
     if [ "$os_alpine" != 1 ];then
-        sed -i "s/nz_grpc_host/${nz_grpc_host}/" ${NZ_AGENT_SERVICE}
-        sed -i "s/nz_grpc_port/${nz_grpc_port}/" ${NZ_AGENT_SERVICE}
-        sed -i "s/nz_client_secret/${nz_client_secret}/" ${NZ_AGENT_SERVICE}
-        [ -n "${args}" ] && sed -i "/ExecStart/ s/$/ ${args}/" ${NZ_AGENT_SERVICE}
-    else
-        sed -i "s/nz_grpc_host/${nz_grpc_host}/" ${NZ_AGENT_SERVICERC}
-        sed -i "s/nz_grpc_port/${nz_grpc_port}/" ${NZ_AGENT_SERVICERC}
-        sed -i "s/nz_client_secret/${nz_client_secret}/" ${NZ_AGENT_SERVICERC}
-        [ -n "${args}" ] && sed -i "/command_args/ s/\"$/ ${args}\"/" ${NZ_AGENT_SERVICERC}
-    fi
+        cat > $NZ_AGENT_SERVICE << EOF
 
-    echo -e "Agent配置 ${green}修改成功，请稍等重启生效${plain}"
+[Unit]
+Description=哪吒探针监控端
+ConditionFileIsExecutable=/opt/nezha/agent/nezha-agent
 
-    if [ "$os_alpine" != 1 ];then
+
+[Service]
+StartLimitInterval=5
+StartLimitBurst=10
+ExecStart=/opt/nezha/agent/nezha-agent "-s" "${nz_grpc_host}:${nz_grpc_port}" "-p" "${nz_client_secret}" --disable-auto-update
+
+WorkingDirectory=/root
+
+
+Restart=always
+
+RestartSec=120
+EnvironmentFile=-/etc/sysconfig/nezha-agent
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+        chmod +x $NZ_AGENT_SERVICE
         systemctl daemon-reload
         systemctl enable nezha-agent
         systemctl restart nezha-agent
+
     else
+        cat > $NZ_AGENT_SERVICERC << EOF
+
+#!/sbin/openrc-run
+
+description="哪吒探针监控端"
+
+command="/opt/nezha/agent/nezha-agent"
+command_args="-s ${nz_grpc_host}:${nz_grpc_port} -p ${nz_client_secret} --disable-auto-update"
+command_background=true
+pidfile="/var/run/nezha-agent.pid"
+
+depend() {
+    need net
+}
+
+start_pre() {
+    checkpath --directory /root
+    checkpath --directory /opt/nezha/agent
+    checkpath --file /opt/nezha/agent/nezha-agent
+}
+
+supervisor="supervise-daemon"
+output_log="/var/log/nezha-agent.log"
+error_log="/var/log/nezha-agent.err"
+
+retry="120"
+EOF
+
+        dos2unix $NZ_AGENT_SERVICERC
+        chmod +x $NZ_AGENT_SERVICERC
         rc-update add nezha-agent
         rc-service nezha-agent restart
+
     fi
+
+echo -e "Agent配置 ${green}修改成功，请稍等重启生效${plain}"
 
 }
 
