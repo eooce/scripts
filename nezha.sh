@@ -492,7 +492,7 @@ modify_dashboard_config_standalone() {
     fi
 }
 
-restart_and_downgrade() {
+restart_and_update() {
     echo -e "${green}> 重启并降级面板至$VERSION${plain}"
 
     cd $NZ_DASHBOARD_PATH
@@ -823,7 +823,7 @@ show_menu() {
     ${green}2.  修改面板配置${plain}
     ${green}3.  启动面板${plain}
     ${green}4.  停止面板${plain} 
-    ${yellow}5. 重启并降级面板${plain}
+    ${yellow}5.  重启并降级面板${plain}
     ${green}6.  查看面板日志${plain} 
     ${green}7.  卸载管理面板${plain}
     ————————————————-
