@@ -509,8 +509,8 @@ restart_and_update() {
     fi
 
     if [[ $? == 0 ]]; then
-        echo -e "${green}哪吒监控 重启并降级成功${plain}"
-        echo -e "默认管理面板地址：${yellow}域名:站点访问端口${plain}"
+        echo -e "${green}哪吒面板重启并降级成功${plain}"
+        echo -e "${yellow}默认管理面板地址：域名:站点访问端口${plain}"
     else
         echo -e "${red}重启失败，可能是因为启动时间超过了两秒，请稍后查看日志信息${plain}"
     fi
@@ -543,8 +543,8 @@ restart_and_update_standalone() {
     fi
     
     if [[ $? == 0 ]]; then
-        echo -e "${green}哪吒监控 重启成功${plain}"
-        echo -e "默认管理面板地址：${yellow}域名:站点访问端口${plain}"
+        echo -e "${green}哪吒面板重启并降级成功${plain}"
+        echo -e "${yellow}默认管理面板地址：域名:站点访问端口${plain}"
     else
         echo -e "${red}重启失败，可能是因为启动时间超过了两秒，请稍后查看日志信息${plain}"
     fi
