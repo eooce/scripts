@@ -60,3 +60,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/test2.sh)
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/sing-box.sh)
 ```
+
+```
+PORT=你的UDP端口 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/containers-shell/00-tuic5.sh)
+```
