@@ -2,10 +2,15 @@
 #export UUID=${UUID:-'fc44fe6a-f083-4591-9c03-f8d61dc3907f'}   # 若需要固定UUID，删除改行开头的#，删除第二行
 export UUID=$(openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}')
 export PASSWORD=${PASSWORD:-$(openssl rand -base64 16)}  # 随机生成password，无需更改
-export SERVER_PORT="${SERVER_PORT:-${PORT:-1234}}"      # TUIC 端口必填，改为开放的udp端口
+export PORT="${PORT:-${PORT:-1234}}"                   # TUIC 端口必填，改为开放的udp端口
 export NEZHA_SERVER=${NEZHA_SERVER:-''}                # 哪吒客户端域名
 export NEZHA_PORT=${NEZHA_PORT:-'5555'}             # 哪吒客户端端口为{443,8443,2096,2087,2083,2053}其中之一时开启tls
 export NEZHA_KEY=${NEZHA_KEY:-''}                 # 哪吒客户端密钥
+USERNAME=$(whoami)
+HOSTNAME=$(hostname)
+
+[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="domains/${USERNAME}.ct8.pl/logs" || WORKDIR="domains/${USERNAME}.serv00.net/logs"
+[ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR" && cd "$WORKDIR")
 
 # Download Dependency Files
 ARCH=$(uname -m) && DOWNLOAD_DIR="." && mkdir -p "$DOWNLOAD_DIR" && FILE_INFO=()
@@ -37,7 +42,7 @@ openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout 
 # Generate configuration file
 cat > config.json <<EOL
 {
-  "server": "[::]:$SERVER_PORT",
+  "server": "[::]:$PORT",
   "users": {
     "$UUID": "$PASSWORD"
   },
@@ -106,8 +111,8 @@ ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' |
 # get hy2 node
 echo -e "\e[1;32mTuic安装成功\033[0m"
 echo ""
-echo -e "\e[1;33mV2rayN 或 Nekobox\033[0m"
-echo -e "\e[1;32mtuic://$UUID:$PASSWORD@$HOST_IP:$SERVER_PORT?congestion_control=bbr&alpn=h3&sni=www.bing.com&udp_relay_mode=native&allow_insecure=1#$ISP\e[0m"
+echo -e "\e[1;33mV2rayN 或 Nekobox，跳过证书验证需设置为true\033[0m\n"
+echo -e "\e[1;32mtuic://$UUID:$PASSWORD@$HOST_IP:$PORT?congestion_control=bbr&alpn=h3&sni=www.bing.com&udp_relay_mode=native&allow_insecure=1#$ISP\e[0m"
 echo ""
 
 # delete files
