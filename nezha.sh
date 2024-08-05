@@ -12,7 +12,7 @@ NZ_AGENT_SERVICE="/etc/systemd/system/nezha-agent.service"
 NZ_AGENT_SERVICERC="/etc/init.d/nezha-agent"
 NZ_DASHBOARD_SERVICE="/etc/systemd/system/nezha-dashboard.service"
 NZ_DASHBOARD_SERVICERC="/etc/init.d/nezha-dashboard"
-export VERSION=${VERSION:-'18.0'}
+export VERSION=${VERSION:-'17.5'}
 export PATH=$PATH:/usr/local/bin
 NZ_VERSION="v0.$VERSION"
 
