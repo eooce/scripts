@@ -41,13 +41,13 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/fix_opens
 ```
 
 ## 哪吒面板一键降级到指定版本
-可在一键命令前加上自定义版本号随脚本一起运行即可自定义版本，默认18.0，例如：VERSION=18.0
+可在一键命令前加上自定义版本号随脚本一起运行即可自定义版本，默认17.5，例如：VERSION=17.5
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/nezha.sh)
 ```
 
 ## nezha-agent一键降级到指定版本
-可在一键命令前加上自定义版本号随脚本一起运行即可自定义版本，默认15.15，例如：VERSION=16.11
+可在一键命令前加上自定义版本号随脚本一起运行即可自定义版本，默认17.5，例如：VERSION=15.0
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/agent.sh)
 ```
