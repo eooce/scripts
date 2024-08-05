@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export VERSION=${VERSION:-'15.15'}  
+export VERSION=${VERSION:-'17.5'}  
 
 red="\033[1;91m"
 green="\e[1;32m"
