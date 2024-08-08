@@ -19,7 +19,7 @@ elif cat /etc/issue | grep -Eqi "debian"; then
     release="debian"
 elif cat /etc/issue | grep -Eqi "ubuntu"; then
     release="ubuntu"
-elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+elif cat /etc/issue | grep -Eqi "centos|red hat|redhat|Fedora"; then
     release="centos"
 elif cat /proc/version | grep -Eqi "debian"; then
     release="debian"
@@ -27,7 +27,7 @@ elif cat /proc/version | grep -Eqi "ubuntu"; then
     release="ubuntu"
 elif cat /proc/version | grep -Eqi "alpine"; then
     release="alpine"
-elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+elif cat /proc/version | grep -Eqi "centos|red hat|redhat|Fedora"; then
     release="centos"
 else
     echo -e "${red}未知系统！${plain}\n" && exit 1
