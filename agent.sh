@@ -31,8 +31,6 @@ elif cat /proc/version | grep -Eqi "alpine"; then
     release="alpine"
 elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
     release="centos"
-else
-    echo -e "${red}未知系统！${plain}\n" && exit 1
 fi
 
 arch=$(arch)
@@ -62,8 +60,6 @@ if [[ -f /etc/os-release ]]; then
 fi
 if [[ -z "$os_version" && -f /etc/lsb-release ]]; then
     os_version=$(awk -F'[= ."]+' '/DISTRIB_RELEASE/{print $2}' /etc/lsb-release)
-else
-    echo -e "${red}未知的系统版本: ${arch}${plain}"
 fi
 
 if [[ x"${release}" == x"centos" ]]; then
@@ -78,6 +74,8 @@ elif [[ x"${release}" == x"debian" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
         echo -e "${red}请使用 Debian 8 或更高版本的系统！${plain}\n" && exit 1
     fi
+else
+    echo -e "${red}未知系统！${plain}\n" && return
 fi
 
 install_base() {
