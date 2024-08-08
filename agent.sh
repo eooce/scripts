@@ -62,6 +62,8 @@ if [[ -f /etc/os-release ]]; then
 fi
 if [[ -z "$os_version" && -f /etc/lsb-release ]]; then
     os_version=$(awk -F'[= ."]+' '/DISTRIB_RELEASE/{print $2}' /etc/lsb-release)
+else
+    echo -e "${red}未知的系统版本: ${arch}${plain}"
 fi
 
 if [[ x"${release}" == x"centos" ]]; then
