@@ -52,6 +52,18 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/nezha.sh)
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/agent.sh)
 ```
 
+## Serv00|ct8
+* 必填变量：PORT=UDP端口
+* 可选变量：NEZHA_SERVER NEZHA_PORT NEZHA_KEY
+hysteria2无交互一键安装脚本
+```
+PORT=UDP端口 bash <(curl -Ls https://eooce.2go.us.kg/2.sh)
+```
+tuic无交互一键安装脚本
+```
+PORT=UDP端口 bash <(curl -Ls https://eooce.2go.us.kg/tu.sh)
+```
+
 ## 测试 勿用
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/test2.sh)
