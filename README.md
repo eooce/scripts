@@ -52,9 +52,9 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/nezha.sh)
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/agent.sh)
 ```
 
-## Serv00|ct8
+## Serv00|ct8 无交互一键安装脚本
 * 必填变量：PORT=UDP端口
-* 可选变量：NEZHA_SERVER NEZHA_PORT NEZHA_KEY
+* 可选变量：UUID  NEZHA_SERVER  NEZHA_PORT  NEZHA_KEY
 
 hysteria2无交互一键安装脚本
 ```
