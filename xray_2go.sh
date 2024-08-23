@@ -925,7 +925,7 @@ else
         2)  stop_argo ;; 
         3)
             clear
-            yellow "\n固定隧道可为json或token，固定隧道端口为8080，自行在cf后台设置\n\njson在f佬维护的站点里获取，获取地址：${purple}https://fscarmen.cloudflare.now.cc${re}\n"
+            yellow "\n固定隧道可为json或token，固定隧道端口为8080，使用token自行在cf后台设置\n\njson可自动匹配端口，获取地址：${purple}https://fscarmen.cloudflare.now.cc${re}\n"
             reading "\n请输入你的argo域名: " argo_domain
             green "你的Argo域名为：$argo_domain"
             ArgoDomain=$argo_domain
