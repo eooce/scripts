@@ -793,11 +793,11 @@ if [ ${check_xray} -eq 0 ]; then
                     new_sni="$new_sni"
                 fi
                 jq --arg new_sni "$new_sni" '
-                (.inbounds[] | select(.type == "vless") | .tls.server_name) = $new_sni |
-                (.inbounds[] | select(.type == "vless") | .tls.reality.handshake.server) = $new_sni
+                (.inbounds[0].streamSettings.realitySettings.dest = $new_sni + ":443" |
+                (.inbounds[0].streamSettings.realitySettings.serverNames = ["'$new_sni'"] |) = $new_sni
                 ' "$config_dir" > "$config_file.tmp" && mv "$config_file.tmp" "$config_dir"
-                restart_xray
-                sed -i "s/\(vless:\/\/[^\?]*\?\([^\&]*\&\)*sni=\)[^&]*/\1$new_sni/" $client_dir
+                restart_xray 
+                sed -i "1s/sni=[^&]*/sni=$ArgoDomain/" $client_dir
                 base64 -w0 $client_dir > /etc/xray/sub.txt
                 while IFS= read -r line; do yellow "$line"; done < ${work_dir}/url.txt
                 echo ""
