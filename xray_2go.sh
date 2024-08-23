@@ -358,7 +358,7 @@ while IFS= read -r line; do echo -e "${purple}$line"; done < ${work_dir}/url.txt
 base64 -w0 ${work_dir}/url.txt > ${work_dir}/sub.txt
 green "\n节点订阅链接：http://$IP:$CADDY_PORT/$password\n\n订阅链接适用于V2rayN,Nekbox,karing,Sterisand,Loon,小火箭,圈X等\n"
 $work_dir/qrencode "http://$IP:$CADDY_PORT/$password"
-
+echo ""
 }
 
 # 如果系统中已存在caddy则先停止
