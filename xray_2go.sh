@@ -792,10 +792,7 @@ if [ ${check_xray} -eq 0 ]; then
                 else
                     new_sni="$new_sni"
                 fi
-                jq --arg new_sni "$new_sni" '
-                (.inbounds[0].streamSettings.realitySettings.dest = $new_sni + ":443" |
-                (.inbounds[0].streamSettings.realitySettings.serverNames = ["'$new_sni'"] |) = $new_sni
-                ' "$config_dir" > "$config_file.tmp" && mv "$config_file.tmp" "$config_dir"
+                jq --arg new_sni "$new_sni" '.inbounds[5].streamSettings.realitySettings.dest = ($new_sni + ":443") | .inbounds[5].streamSettings.realitySettings.serverNames = [$new_sni]' /etc/xray/config.json > /etc/xray/config.json.tmp && mv /etc/xray/config.json.tmp /etc/xray/config.json
                 restart_xray 
                 sed -i "1s/sni=[^&]*/sni=$ArgoDomain/" $client_dir
                 base64 -w0 $client_dir > /etc/xray/sub.txt
