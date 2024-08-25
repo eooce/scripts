@@ -60,10 +60,24 @@ hysteria2无交互一键安装脚本
 ```
 PORT=UDP端口 bash <(curl -Ls https://github.com/eooce/Sing-box/releases/download/00/2.sh)
 ```
+或
+```
+PORT=UDP端口 bash <(curl -Ls https://00.2go.us.kg/2.sh)
+```
+
+
 tuic无交互一键安装脚本
 ```
 PORT=UDP端口 bash <(curl -Ls https://github.com/eooce/Sing-box/releases/download/00/tu.sh)
 ```
+或
+```
+PORT=UDP端口 bash <(curl -Ls https://00.2go.us.kg/tu.sh)
+```
+
+
+
+
 
 ## 测试 勿用
 ```
