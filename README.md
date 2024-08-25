@@ -5,18 +5,18 @@ This is a reality no interaction one-click script，only support Debian10+/Ubunt
 ## Reality
 Run the following command. The PORT can be customized,Removing PORT=8880 it will use a random port
 ```
-PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/reality.sh)"
+PORT=8880 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/reality.sh)
 ```
 
 ```
-bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/test.sh)"  
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/test.sh) 
 ```
 PORT,NEZHA_SERVER,NEZHA_PORT,NEZHA_KEY can be customized
 
 ## Hysteria2
 The HY2_PORT can be customized,Removing HY2_PORT=8880 it will use a random port
 ```
-HY2_PORT=8880 bash -c "$(curl -L https://raw.githubusercontent.com/eooce/scripts/master/Hysteria2.sh)"
+HY2_PORT=8880 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/Hysteria2.sh)
 ```
 
 ## Tuic-v5
@@ -70,10 +70,9 @@ PORT=UDP端口 bash <(curl -Ls https://github.com/eooce/Sing-box/releases/downlo
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/test2.sh)
 ```
 
-```
-bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/sing-box.sh)
-```
 
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/xray_2go.sh)
+bash <(curl -Ls https://github.com/eooce/xray-2go/raw/main/xray_2go.sh)
 ```
+
+https://github.com/eooce/xray-2go
