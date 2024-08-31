@@ -189,25 +189,13 @@ run() {
   fi
 } 
 run
-sleep 2
+sleep 6
 
 function get_argodomain() {
   if [[ -n $ARGO_AUTH ]]; then
     echo "$ARGO_DOMAIN"
   else
-    if [ pgrep -x "node" > /dev/null ] && [ -f "${FILE_PATH}/boot.log" ]; then
-        for i in {1..5}; do
-            purple "第 $i 次尝试获取Argo临时域名中..."
-            domain=$(sed -n 's|.*https://\([^/]*trycloudflare\.com\).*|\1|p' "${FILE_PATH}/boot.log")
-            if [ -n "$domain" ]; then
-              return
-            fi
-            sleep 2
-        done
-        echo -e "\e[1;35m未获取到临时域名，脚本退出,请重新运行！\e[0m" && exit 1
-    else
-        echo -e "\e[1;35m未获取到临时域名，脚本退出，请重新运行！\e[0m" && exit 1
-    fi
+    grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' "${FILE_PATH}/boot.log" | sed 's@https://@@'
   fi
 }
 
