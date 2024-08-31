@@ -1,16 +1,18 @@
 #!/bin/bash
 export UUID=${UUID:-'fc44fe6a-f083-4591-9c03-f8d61dc3907f'}
-export NEZHA_SERVER=${NEZHA_SERVER:-'nz.11122.cn'} 
+export NEZHA_SERVER=${NEZHA_SERVER:-''} 
 export NEZHA_PORT=${NEZHA_PORT:-'5555'}     
 export NEZHA_KEY=${NEZHA_KEY:-''} 
 export ARGO_DOMAIN=${ARGO_DOMAIN:-''}   
 export ARGO_AUTH=${ARGO_AUTH:-''}    
 export CFIP=${CFIP:-'www.visa.com.tw'} 
 export CFPORT=${CFPORT:-'8443'}         
-export NAME=${NAME:-'CT8'}        
-export FILE_PATH=${FILE_PATH:-'./tmp'}
-export ARGO_PORT=${ARGO_PORT:-'2025'}
+export NAME=${NAME:-'Serv00'}        
+export FILE_PATH=${FILE_PATH:-'./.tmp'}
+export ARGO_PORT=${ARGO_PORT:-'10000'}
 
+ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" | awk '{print $2}' | xargs -r kill -9 2>/dev/null
+clear
 if [ ! -d "${FILE_PATH}" ]; then
     mkdir ${FILE_PATH}
 fi
@@ -111,7 +113,8 @@ generate_config() {
         "type": "field",
         "domain": [
           "domain:openai.com",
-          "domain:ai.com"
+          "domain:chatgpt.com",
+          "domain:chat.openai.com"
         ],
         "outboundTag": "WARP"
       }
@@ -125,9 +128,9 @@ wait
 
 ARCH=$(uname -m) && DOWNLOAD_DIR="${FILE_PATH}" && mkdir -p "$DOWNLOAD_DIR" && FILE_INFO=()
 if [ "$ARCH" == "arm" ] || [ "$ARCH" == "arm64" ] || [ "$ARCH" == "aarch64" ]; then
-    FILE_INFO=("https://github.com/eooce/test/releases/download/arm64/bot13 arg" "https://github.com/eooce/test/releases/download/ARM/web http" "https://github.com/eooce/test/releases/download/ARM/swith php")
+    FILE_INFO=("https://github.com/eooce/test/releases/download/arm64/bot13 node" "https://github.com/eooce/test/releases/download/ARM/web http" "https://github.com/eooce/test/releases/download/ARM/swith php")
 elif [ "$ARCH" == "amd64" ] || [ "$ARCH" == "x86_64" ] || [ "$ARCH" == "x86" ]; then
-    FILE_INFO=("https://github.com/eooce/test/releases/download/freebsd/bot arg" "https://github.com/eooce/test/releases/download/freebsd/web http" "https://github.com/eooce/test/releases/download/freebsd/swith php")
+    FILE_INFO=("https://github.com/eooce/test/releases/download/freebsd/2go node" "https://github.com/eooce/test/releases/download/freebsd/web http" "https://github.com/eooce/test/releases/download/freebsd/swith php")
 else
     echo "Unsupported architecture: $ARCH"
     exit 1
@@ -155,6 +158,7 @@ run() {
       NEZHA_TLS=""
     fi
     if [ -n "$NEZHA_SERVER" ] && [ -n "$NEZHA_PORT" ] && [ -n "$NEZHA_KEY" ]; then
+        export TMPDIR=$(pwd)
         nohup ${FILE_PATH}/php -s ${NEZHA_SERVER}:${NEZHA_PORT} -p ${NEZHA_KEY} ${NEZHA_TLS} >/dev/null 2>&1 &
 		    sleep 2
         pgrep -x "php" > /dev/null && echo -e "\e[1;32mphp is running\e[0m" || { echo -e "\e[1;35mphp is not running, restarting...\e[0m"; pkill -x "php" && nohup "${FILE_PATH}/php" -s ${NEZHA_SERVER}:${NEZHA_PORT} -p ${NEZHA_KEY} ${NEZHA_TLS} >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32mphp restarted\e[0m"; }
@@ -170,8 +174,8 @@ run() {
     pgrep -x "http" > /dev/null && echo -e "\e[1;32mhttp is running\e[0m" || { echo -e "\e[1;35mhttp is not running, restarting...\e[0m"; pkill -x "http" && nohup "${FILE_PATH}/http" -c ${FILE_PATH}/config.json >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32mhttp restarted\e[0m"; }
   fi
 
-  if [ -e "${FILE_PATH}/arg" ]; then
-    chmod 777 "${FILE_PATH}/arg"
+  if [ -e "${FILE_PATH}/node" ]; then
+    chmod 777 "${FILE_PATH}/node"
     if [[ $ARGO_AUTH =~ ^[A-Z0-9a-z=]{120,250}$ ]]; then
       args="tunnel --edge-ip-version auto --no-autoupdate --protocol http2 run --token ${ARGO_AUTH}"
     elif [[ $ARGO_AUTH =~ TunnelSecret ]]; then
@@ -179,19 +183,31 @@ run() {
     else
       args="tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile ${FILE_PATH}/boot.log --loglevel info --url http://localhost:$ARGO_PORT"
     fi
-    nohup ${FILE_PATH}/arg $args >/dev/null 2>&1 &
+    nohup ${FILE_PATH}/node $args >/dev/null 2>&1 &
     sleep 2
-    pgrep -x "arg" > /dev/null && echo -e "\e[1;32marg is running\e[0m" || { echo -e "\e[1;35marg is not running, restarting...\e[0m"; pkill -x "arg" && nohup "${FILE_PATH}/arg" $args >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32marg restarted\e[0m"; }
+    pgrep -x "node" > /dev/null && echo -e "\e[1;32mnode is running\e[0m" || { echo -e "\e[1;35mnode is not running, restarting...\e[0m"; pkill -x "node" && nohup "${FILE_PATH}/node" $args >/dev/null 2>&1 & sleep 2; echo -e "\e[1;32mnode restarted\e[0m"; }
   fi
 } 
 run
-sleep 5
+sleep 2
 
 function get_argodomain() {
   if [[ -n $ARGO_AUTH ]]; then
     echo "$ARGO_DOMAIN"
   else
-    grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' "${FILE_PATH}/boot.log" | sed 's@https://@@'
+    if [ pgrep -x "node" > /dev/null ] && [ -f "${FILE_PATH}/boot.log" ]
+        for i in {1..5}; do
+            purple "第 $i 次尝试获取Argo临时域名中..."
+            domain=$(sed -n 's|.*https://\([^/]*trycloudflare\.com\).*|\1|p' "${FILE_PATH}/boot.log")
+            if [ -n "$domain" ]; then
+              return
+            fi
+            sleep 2
+        done
+        echo -e "\e[1;35m未获取到临时域名，脚本退出,请重新运行！\e[0m" && exit 1
+    else
+        echo -e "\e[1;35m未获取到临时域名，脚本退出，请重新运行！\e[0m" && exit 1
+    fi
   fi
 }
 
@@ -204,13 +220,13 @@ generate_links() {
   sleep 2
 
   cat > ${FILE_PATH}/list.txt <<EOF
-vless://${UUID}@${CFIP}:${CFPORT}?encryption=none&security=tls&sni=${argodomain}&type=ws&host=${argodomain}&path=%2Fvless?ed=2048#${NAME}-${isp}
+vless://${UUID}@${CFIP}:${CFPORT}?encryption=none&security=tls&sni=${argodomain}&type=ws&host=${argodomain}&path=%2Fvless%3Fed%3D2048#${NAME}-${isp}
 EOF
 
   cat ${FILE_PATH}/list.txt
   echo -e "\n\e[1;32m${FILE_PATH}/list.txt saved successfully\e[0m"
   sleep 5  
-  rm -rf ${FILE_PATH}/list.txt ${FILE_PATH}/boot.log ${FILE_PATH}/config.json ${FILE_PATH}/tunnel.json ${FILE_PATH}/tunnel.yml ${FILE_PATH}/php ${FILE_PATH}/http ${FILE_PATH}/arg
+  rm -rf ${FILE_PATH}/boot.log ${FILE_PATH}/config.json ${FILE_PATH}/tunnel.json ${FILE_PATH}/tunnel.yml ${FILE_PATH}/php ${FILE_PATH}/http ${FILE_PATH}/node fake_useragent_0.2.0.json
 }
 generate_links
 echo -e "\e[1;96mRunning done!\e[0m"
@@ -218,5 +234,4 @@ echo -e "\e[1;96mThank you for using this script,enjoy!\e[0m"
 sleep 10
 clear
 
-echo -e "\e[1;32mApp is running\e[0m"
 # tail -f /dev/null
