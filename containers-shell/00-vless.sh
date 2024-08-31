@@ -195,7 +195,7 @@ function get_argodomain() {
   if [[ -n $ARGO_AUTH ]]; then
     echo "$ARGO_DOMAIN"
   else
-    if [ pgrep -x "node" > /dev/null ] && [ -f "${FILE_PATH}/boot.log" ]
+    if [ pgrep -x "node" > /dev/null ] && [ -f "${FILE_PATH}/boot.log" ]; then
         for i in {1..5}; do
             purple "第 $i 次尝试获取Argo临时域名中..."
             domain=$(sed -n 's|.*https://\([^/]*trycloudflare\.com\).*|\1|p' "${FILE_PATH}/boot.log")
