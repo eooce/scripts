@@ -18,7 +18,7 @@ attempt=0
 # 根据对应系统安装依赖
 install_packages() {
     if [ -f /etc/debian_version ]; then
-        package_manager="apt install -y"
+        package_manager="DEBIAN_FRONTEND=noninteractive apt-get install -y"
     elif [ -f /etc/redhat-release ]; then
         package_manager="yum install -y"
     elif [ -f /etc/fedora-release ]; then
@@ -60,7 +60,7 @@ run_remote_command() {
 # 循环检测
 while [ $attempt -lt $MAX_ATTEMPTS ]; do
   if check_tcp_port; then
-    echo -e "\e[1;32m程序已运行，TCP 端口 $TCP_PORT 通畅\e[0m"
+    echo -e "\e[1;32m程序已运行，TCP 端口 $TCP_PORT 通畅\e[0m\n"
     exit 0
   else
     echo -e "\e[1;33mTCP 端口 $TCP_PORT 不通畅，进程可能不存在，休眠30s后重试\e[0m"
