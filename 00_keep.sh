@@ -57,7 +57,7 @@ run_remote_command() {
     "VMESS_PORT=$TCP_PORT HY2_PORT=$UDP1_PORT TUIC_PORT=$UDP2_PORT bash <(curl -Ls https://raw.githubusercontent.com/eooce/sing-box/main/sb_00.sh)"
 }
 
-# 主循环
+# 循环检测
 while [ $attempt -lt $MAX_ATTEMPTS ]; do
   if check_tcp_port; then
     echo -e "\e[1;32m程序已运行，TCP 端口 $TCP_PORT 通畅\e[0m"
