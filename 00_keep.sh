@@ -72,14 +72,6 @@ done
 # 如果达到最大尝试次数，连接服务器并执行远程命令
 if [ $attempt -ge $MAX_ATTEMPTS ]; then
   echo -e "\e[1;33m多次检测失败，尝试通过 SSH 连接并执行命令\e[0m"
-  output=$(run_remote_command)
-  echo -e "\e[1;33m远程命令执行结果：\e[0m"
-  echo "$output"
-fi
-
-# 如果达到最大尝试次数，连接服务器并执行远程命令
-if [ $attempt -ge $MAX_ATTEMPTS ]; then
-  echo -e "\e[1;33m多次检测失败，尝试通过 SSH 连接并执行命令\e[0m"
   if sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$HOST -q exit; then
     echo -e "\e[1;32mSSH远程连接成功!\e[0m"
     output=$(run_remote_command)
