@@ -2,7 +2,7 @@
 
 SCRIPT_PATH="/root/keep.sh"  # 脚本路径
 
-export HOST=${HOST:-'s11.serv00.com'}   # 服务器或IP
+export HOST=${HOST:-'s11.serv00.com'}   # serv00服务器或IP
 export TCP_PORT=${TCP_PORT:-'1234'}     # 四合一vmess端口
 export UDP1_PORT=${UDP1_PORT:-'5678'}   # 四合一hy2端口
 export UDP2_PORT=${UDP2_PORT:-'6789'}   # 四合一tuic端口
