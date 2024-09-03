@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPT_PATH="/root/keep.sh"  # 脚本路径
+SCRIPT_PATH="/root/00_keep.sh"  # 脚本路径
 
 export HOST=${HOST:-'s11.serv00.com'}   # serv00服务器或IP
 export TCP_PORT=${TCP_PORT:-'1234'}     # 四合一vmess端口
