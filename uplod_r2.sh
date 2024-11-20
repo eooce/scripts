@@ -34,14 +34,8 @@ install_dependencies() {
         echo "安装 wrangler CLI..."
         npm install -g wrangler
     fi
-
-    if ! command -v jq &>/dev/null; then
-        echo "安装 jq..."
-        sudo apt-get install -y jq
-    fi
-
-    echo "更新系统包并安装必要工具..."
-    apt-get install -y upx-ucl unzip wget tar curl
+    
+    apt-get install -y upx-ucl unzip wget tar curl jq
 }
 
 # 自动登录到 Cloudflare R2
