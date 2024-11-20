@@ -1,9 +1,10 @@
 #!/bin/bash
-#  (crontab -l 2>/dev/null; echo "0 3 * * 0 bash /root/r2/uplod_r2.sh > /root/r2/uplod.log 2>&1") | crontab -        # 添加crontab，每周日凌晨3点执行,复制此命令回车运行即可
+# (crontab -l 2>/dev/null; echo "0 3 * * 0 bash /root/uplod_r2.sh > /root/uplod.log 2>&1") | crontab -    
+# 复制以上命令回车自动添加crontab，每周日凌晨3点执行,如果只想上传一次，只需运行此shell文件一次即可
 
 export R2_REGION="APAC"                                                 # 存储桶区域 (APAC为亚太，WNAM为美西，ENAM为美东，EEUR为东欧，WEUR为西欧)
 export CLOUDFLARE_API_TOKEN="abcdefghijkendfdvsdfdbdvdsfsadsasasadsa-"  # Cloudflare API key
-export CLOUDFLARE_ACCOUNT_ID="8b9724080e55e70370fb74287922vj5677"       # Cloudflare 账户 ID
+export CLOUDFLARE_ACCOUNT_ID="8b9724080e54370370fb74287922vj5677"       # Cloudflare 账户 ID
 
 set -e  # 出错时退出脚本
 set -u  # 使用未定义变量时报错
@@ -18,7 +19,6 @@ declare -A ARCH_MAP=(
 
 # 获取 sing-box 最新版本号
 sb_latest_version=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name | sub("^v"; "")')
-
 # 下载 URL 定义
 declare -A DOWNLOAD_URLS=(
     ["xray"]="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux"
@@ -138,7 +138,7 @@ process_files() {
     done
 
     # 压缩文件
-    upx -9 ./nezha-agent -o swith
+    upx -9 ./nezha-agent -o npm
     upx -9 ./xray -o web
     upx -9 ./cloudflared -o bot
     upx -9 ./sing-box -o sbx
@@ -147,7 +147,7 @@ process_files() {
 # 验证文件
 validate_files() {
     echo "验证压缩后的文件..."
-    for file in swith web bot sbx; do
+    for file in npm web bot sbx; do
         if [ ! -f "$file" ]; then
             echo "错误：$file 未找到"
             return 1
@@ -186,7 +186,7 @@ main() {
             # 验证文件
             if validate_files; then
                 echo "上传到存储桶：$BUCKET_NAME"
-                upload_to_r2 "swith" "$BUCKET_NAME" "swith" "application/x-elf"
+                upload_to_r2 "npm" "$BUCKET_NAME" "npm" "application/x-elf"
                 upload_to_r2 "web" "$BUCKET_NAME" "web" "application/x-elf"
                 upload_to_r2 "bot" "$BUCKET_NAME" "bot" "application/x-elf"
                 upload_to_r2 "sbx" "$BUCKET_NAME" "sbx" "application/x-elf"
@@ -199,7 +199,7 @@ main() {
     done
 
     echo "所有文件处理和上传完成！"
-    rm -rf /root/r2/amd64
+    rm -rf amd64
 }
 
 main
