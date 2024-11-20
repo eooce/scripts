@@ -1,8 +1,8 @@
 #!/bin/bash
 # (crontab -l 2>/dev/null; echo "0 3 * * 0 bash /root/uplod_r2.sh > /root/uplod.log 2>&1") | crontab -    
-# 复制以上命令回车自动添加crontab，每周日凌晨3点执行,如果只想上传一次，只需运行此shell文件一次即可
+# 复制以上命令回车自动添加crontab定时任务，每周日凌晨3点执行,如果只想上传一次，只需运行此shell文件一次即可
 
-export R2_REGION="APAC"                                                 # 存储桶区域 (APAC为亚太，WNAM为美西，ENAM为美东，EEUR为东欧，WEUR为西欧)
+export R2_REGION="APAC"       # 存储桶区域 (APAC为亚太，WNAM为美西，ENAM为美东，EEUR为东欧，WEUR为西欧)
 export CLOUDFLARE_API_TOKEN="abcdefghijkendfdvsdfdbdvdsfsadsasasadsa-"  # Cloudflare API key
 export CLOUDFLARE_ACCOUNT_ID="8b9724080e54370370fb74287922vj5677"       # Cloudflare 账户 ID
 
