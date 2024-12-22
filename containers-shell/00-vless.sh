@@ -11,7 +11,7 @@ export NAME=${NAME:-'Serv00'}
 export FILE_PATH=${FILE_PATH:-'./tmp'}
 export ARGO_PORT=${ARGO_PORT:-'10000'}
 
-ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" | awk '{print $2}' | xargs -r kill -9 2>/dev/null
+bash -c 'ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" | awk "{print \$2}" | xargs -r kill -9 >/dev/null 2>&1' >/dev/null 2>&1
 clear
 if [ ! -d "${FILE_PATH}" ]; then
     mkdir ${FILE_PATH}
