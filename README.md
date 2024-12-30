@@ -9,6 +9,10 @@ PORT=8880 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master
 ```
 
 ```
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/xhttp-reality.sh)
+```
+
+```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/test.sh) 
 ```
 PORT,NEZHA_SERVER,NEZHA_PORT,NEZHA_KEY can be customized
