@@ -9,7 +9,7 @@ PORT=8880 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master
 ```
 
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/xhttp-reality.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/xhttp_reality.sh)
 ```
 
 ```
