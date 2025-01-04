@@ -100,7 +100,7 @@ bash <(curl -Ls https://github.com/eooce/xray-2go/raw/main/xray_2go.sh)
 ```
 
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/containers-shell/00_vless.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/refs/heads/master/containers-shell/00-vless.sh)
 ```
 
 
