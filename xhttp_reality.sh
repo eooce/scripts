@@ -41,7 +41,7 @@ Install_dependencies
 # 获取IP地址
 getIP() {
     local serverIP
-    serverIP=$(curl -s --max-time 2 https://ip.eooce.com | sed -n 's/.*"ip": "\([0-9.]*\)".*/\1/p')
+    serverIP=$(curl -s --max-time 2 ip.sb)
     if [[ -z "${serverIP}" ]]; then
         serverIP=$(curl -s --max-time 1 ipv6.ip.sb)
     else
