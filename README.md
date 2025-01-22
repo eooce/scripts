@@ -90,7 +90,7 @@ vless-ws-tls(argo)一键脚本,复制脚本回车即可
 
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/containers-shell/00_vless.sh)
-`
+、、、
 
 
 
@@ -98,7 +98,6 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/container
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/test2.sh)
 ```
-
 
 ```
 bash <(curl -Ls https://github.com/eooce/xray-2go/raw/main/xray_2go.sh)
