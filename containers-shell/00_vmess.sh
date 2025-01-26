@@ -22,9 +22,9 @@ export ARGO_AUTH=${ARGO_AUTH:-''}         # ARGO 固定隧道json或token，留�
 export CFIP=${CFIP:-'www.visa.com.tw'}   # 优选ip或优选域名
 export CFPORT=${CFPORT:-'443'}          # 优选ip或优选域名对应端口  
 export PORT=${PORT:-''}                 # ARGO端口必填 不填自动获取
-
-[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="domains/${USERNAME}.ct8.pl/logs" || WORKDIR="domains/${USERNAME}.serv00.net/logs" && rm -rf $WORKDIR
-[ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR")
+export SUB_TOKEN=${SUB_TOKEN:-'sub'}
+[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="${HOME}/domains/${USERNAME}.ct8.pl/logs" && FILE_PATH="${HOME}/domains/${USERNAME}.ct8.pl/public_html" || WORKDIR="${HOME}/domains/${USERNAME}.serv00.net/logs" && FILE_PATH="${HOME}/domains/${USERNAME}.serv00.net/public_html"
+rm -rf "$WORKDIR" && mkdir -p "$WORKDIR" "$FILE_PATH" && chmod 777 "$WORKDIR" "$FILE_PATH" >/dev/null 2>&1
 bash -c 'ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" | awk "{print \$2}" | xargs -r kill -9 >/dev/null 2>&1' >/dev/null 2>&1
 
 check_binexec_and_port () {
@@ -250,11 +250,11 @@ generate_links() {
   get_name() { if [ "$HOSTNAME" = "s1.ct8.pl" ]; then SERVER="CT8"; else SERVER=$(echo "$HOSTNAME" | cut -d '.' -f 1); fi; echo "$SERVER"; }
   NAME=${isp}-$(get_name)-vmess-argo-${USERNAME}
   FILE_PATH="/usr/home/${USERNAME}/domains/${USERNAME}.serv00.net/public_html"
-  cat > ${FILE_PATH}/list.txt <<EOF
+  cat > ${FILE_PATH}/${SUB_TOKEN}_vmess.log <<EOF
 vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${NAME}\", \"add\": \"${CFIP}\", \"port\": \"${CFPORT}\", \"id\": \"${UUID}\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"${argodomain}\", \"path\": \"vmess-argo?ed=2048\", \"tls\": \"tls\", \"sni\": \"${argodomain}\", \"alpn\": \"\" }" | base64 -w0)
 EOF
-  cat ${FILE_PATH}/list.txt
-  green "\n订阅连接: https://${USERNAME}.serv00.net/list.txt\n" 
+  cat ${FILE_PATH}/${SUB_TOKEN}_vmess.log
+  green "\n订阅连接: https://${USERNAME}.serv00.net/${SUB_TOKEN}_vmess.log 适用于V2ranN/Nekobox/Karing/小火箭/sterisand/Loon 等\n" 
   rm -rf config.json fake_useragent_0.2.0.json ${WORKDIR}/boot.log ${WORKDIR}/tunnel.json ${WORKDIR}/tunnel.yml 
 }
 generate_links
