@@ -56,34 +56,6 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/nezha.sh)
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/agent.sh)
 ```
 
-## Serv00|ct8 无交互一键安装脚本
-* 可选变量：UUID  NEZHA_SERVER  NEZHA_PORT  NEZHA_KEY
-
-hysteria2无交互一键安装脚本,复制脚本回车即可
-```
-bash <(curl -Ls https://github.com/eooce/Sing-box/releases/download/00/2.sh)
-```
-或
-```
-bash <(curl -Ls https://00.2go.us.kg/2.sh)
-```
-
-
-tuic无交互一键安装脚本,复制脚本回车即可
-```
-bash <(curl -Ls https://github.com/eooce/Sing-box/releases/download/00/tu.sh)
-```
-或
-```
-bash <(curl -Ls https://00.2go.us.kg/tu.sh)
-```
-
-vmess-ws-tls(argo)一键脚本,复制脚本回车即可
-* 可选变量：UUID  NEZHA_SERVER  NEZHA_PORT  NEZHA_KEY  CFIP CFPORT
-
-```
-bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/containers-shell/00_vmess.sh)
-```
 
 vless-ws-tls(argo)一键脚本,复制脚本回车即可
 * 可选变量：UUID  NEZHA_SERVER  NEZHA_PORT  NEZHA_KEY  CFIP CFPORT
