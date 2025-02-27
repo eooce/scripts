@@ -64,7 +64,7 @@ vless-ws-tls(argo)一键脚本,复制脚本回车即可
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/refs/heads/master/containers-shell/00-vless.sh)
 ```
 
-
+serv00 v0 / v1 面板
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/serv00_dashboard.sh)
 ```
