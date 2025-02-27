@@ -178,7 +178,7 @@ run_dashboard() {
 install_keepalive () {
     purple "正在安装全自动保活服务中,请稍等......"
     [ -d "$KEEP_PATH" ] || mkdir -p "$KEEP_PATH"
-    $DOWNLOAD_CMD "https://00.2go.us.kg/dashboard.js" >/dev/null 2>&1
+    $DOWNLOAD_CMD "https://00.ssss.nyc.mn/dashboard.js" >/dev/null 2>&1
     mv dashboard.js "$KEEP_PATH/app.js" >/dev/null 2>&1
     devil www add keep.${USERNAME}.serv00.net nodejs /usr/local/bin/node18 > /dev/null 2>&1
     # ip_address=$(devil vhost list | sed -n '5p' | awk '{print $1}')
