@@ -65,6 +65,10 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/refs/heads/maste
 ```
 
 
+```
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/serv00_dashboard.sh)
+```
+
 
 ## 测试 勿用
 
