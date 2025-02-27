@@ -191,6 +191,7 @@ install_keepalive () {
     rm -rf $HOME/.npmrc > /dev/null 2>&1
     cd ${KEEP_PATH} && npm install dotenv axios --silent > /dev/null 2>&1
     rm $HOME/domains/keep.${USERNAME}.serv00.net/public_nodejs/public/index.html > /dev/null 2>&1
+    rm $HOME/domains/${USERNAME}.serv00.net/public_html/index.html > /dev/null 2>&1
     # devil www options keep.${USERNAME}.serv00.net sslonly on > /dev/null 2>&1
     if devil www restart keep.${USERNAME}.serv00.net 2>&1 | grep -q "succesfully"; then
         green "\n哪吒面板全自动保活服务安装成功\n\n"
