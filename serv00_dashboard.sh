@@ -17,7 +17,7 @@ KEEP_PATH="${HOME}/domains/keep.${USERNAME}.serv00.net/public_nodejs"
 mkdir -p "$WORKDIR" && chmod +x "$WORKDIR"
 
 # 获取命令行参数
-dashboard_version=${1:-"v1"}  # 默认值为 v0
+dashboard_version=${1:-"v1"}  # 默认值为 v1
 custom_domain=${2:-"${USERNAME}.serv00.net"}  # 默认值为用户名的域名
 
 choose_verison() {
