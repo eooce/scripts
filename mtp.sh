@@ -28,7 +28,7 @@ check_port () {
       while true; do
           tcp_port=$(shuf -i 10000-65535 -n 1)
           result=$(devil port add tcp $tcp_port 2>&1)
-          if [[ $result == *"succesfully"* ]]; then
+          if [[ $result == *"Ok"* ]]; then
               green "已添加TCP端口: $tcp_port"
               tcp_port1=$tcp_port
               break
