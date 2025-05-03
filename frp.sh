@@ -215,7 +215,7 @@ EOF
 
     # 重启SSH服务
     systemctl restart ssh
-    [ "$(systemctl is-active ssh)" = "active" ] && echo "SSH服务运行正常" && return 0 || echo "SSH服务未运行,请执行 systemctl stattus ssh 检查" && exit 1
+    [ "$(systemctl is-active ssh)" = "active" ] && echo "SSH服务运行正常" && return 0 || echo "SSH服务未运行,请执行 systemctl status ssh 检查" && exit 1
 
 }
 
@@ -325,7 +325,7 @@ EOF
 
     # 检查服务状态
     echo -e "\nFRP服务状态:"
-    [ "$(systemctl is-active frpc)" = "active" ] && echo "FRP运行正常" && return 0 || echo "FRP运行未运行,请执行 systemctl stattus frpc 检查" && exit 1
+    [ "$(systemctl is-active frpc)" = "active" ] && echo "FRP运行正常" && return 0 || echo "FRP运行未运行,请执行 systemctl status frpc 检查" && exit 1
 }
 
 # 1. 设置root密码
@@ -346,7 +346,7 @@ echo "现在可以通过以下ssh配置连接到此服务器:"
 echo "host: ${SERVER_IP}"
 echo "ssh port: ${REMOTE_SSH_PORT}"
 echo "root password: $ROOT_PWD"
-echo "\n\n重要提示："
+echo -e "\n\n重要提示："
 echo "1. 请确保中继服务器已正确配置FRP服务端"
 echo "2. 确保中继服务器的防火墙已开放 ${SERVER_PORT} 和 ${REMOTE_SSH_PORT} 端口"
 echo "3. 如需修改配置，请编辑 ${FRP_DIR}/current/frpc.ini 后执行: systemctl restart frpc"
