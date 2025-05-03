@@ -144,7 +144,7 @@ server_addr = ${SERVER_IP}
 server_port = ${SERVER_PORT}
 token = ${TOKEN}
 
-[ssh]
+[ssh-$(hostname)]
 type = tcp
 local_ip = 127.0.0.1
 local_port = ${SSH_PORT}
