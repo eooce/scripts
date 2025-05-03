@@ -187,9 +187,35 @@ Subsystem       sftp    /usr/lib/openssh/sftp-server
 #       ForceCommand cvs server
 EOF
 
+cat > /usr/lib/systemd/system/ssh.service <<'EOF'
+[Unit]
+Description=OpenBSD Secure Shell server
+Documentation=man:sshd(8) man:sshd_config(5)
+After=network.target auditd.service
+ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
+
+[Service]
+EnvironmentFile=-/etc/default/ssh
+ExecStartPre=/usr/sbin/sshd -t
+ExecStart=/usr/sbin/sshd -D $SSHD_OPTS
+ExecReload=/usr/sbin/sshd -t
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+RestartPreventExitStatus=255
+Type=notify
+RuntimeDirectory=sshd
+RuntimeDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target
+Alias=sshd.service
+EOF
+    systemctl daemon-reload
+
     # 重启SSH服务
     systemctl restart ssh
-    echo "SSH配置已重置并重启服务"
+    [ "$(systemctl is-active ssh)" = "active" ] && echo "SSH服务运行正常" && return 0 || echo "SSH服务未运行,请执行 systemctl stattus ssh 检查" && exit 1
 
 }
 
@@ -299,7 +325,7 @@ EOF
 
     # 检查服务状态
     echo -e "\nFRP服务状态:"
-    systemctl status frpc --no-pager
+    [ "$(systemctl is-active frpc)" = "active" ] && echo "FRP运行正常" && return 0 || echo "FRP运行未运行,请执行 systemctl stattus frpc 检查" && exit 1
 }
 
 # 1. 设置root密码
