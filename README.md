@@ -56,6 +56,12 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/nezha.sh)
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/agent.sh)
 ```
 
+## Frp 一键安装服务端和客户端
+可选环境变量 FRP_VERSION FRP_DIR FRP_PORT
+```
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/frp.sh)
+```
+
 
 vless-ws-tls(argo)一键脚本,复制脚本回车即可
 * 可选变量：UUID  NEZHA_SERVER  NEZHA_PORT  NEZHA_KEY  CFIP CFPORT
