@@ -14,9 +14,9 @@ purple() { echo -e "\e[1;35m$1\033[0m"; }
 reading() { read -p "$(red "$1")" "$2"; }
 
 # 全局配置
-FRP_VERSION="0.54.0"
-FRP_DIR="/opt/frp"
-SSH_PORT="22"
+export FRP_VERSION=${FRP_VERSION:-'0.62.1'}  
+export FRP_DIR=${FRP_DIR:-'/opt/frp'} 
+export SSH_PORT=${SSH_PORT:-'22'} 
 
 # 检查root权限
 check_root() {
