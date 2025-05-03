@@ -214,7 +214,7 @@ EOF
     systemctl enable --now frps >/dev/null 2>&1
 
     if [ "$(systemctl is-active frps)" = "active" ]; then
-        echo -e "\e[1;35m服务状态: \e[1;32mactive\033[0m\n" 
+        echo -e "\n\e[1;35m服务状态: \e[1;32mactive\033[0m\n" 
         local SERVER_IP=$(get_server_ip)
         green "\nFRP服务端安装完成!\n"
         save_config_info "服务端" \
@@ -230,7 +230,7 @@ EOF
         green "监听端口: ${BIND_PORT}"
         green "监听IP: ${SERVER_IP}"
         green "认证TOKEN: ${TOKEN}\n"
-        purple "web管理信息"
+        purple "web管理信息:"
         green "Web地址: http://${SERVER_IP}:${DASHBOARD_PORT}"
         green "用户名: ${DASHBOARD_USER}"
         green "登录密码: ${DASHBOARD_PWD}\n"
