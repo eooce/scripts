@@ -222,7 +222,7 @@ EOF
             "安装目录|${FRP_DIR}" \
             "监听IP|${SERVER_IP}" \
             "监听端口|${BIND_PORT}" \
-            "认证TOKEN|${TOKEN}\n" \
+            "认证TOKEN|${TOKEN}" \
             "web端口|${DASHBOARD_PORT}" \
             "web登录用户名|${DASHBOARD_USER}" \
             "web登录密码|${DASHBOARD_PWD}"
