@@ -197,7 +197,7 @@ EOF
         green "服务器IP: ${SERVER_IP}"
         green "SSH端口: ${REMOTE_SSH_PORT}"
         green "密码: ${ROOT_PWD}"
-        yellow "\n提示: 确保服务端已开放端口 ${SERVER_PORT} 和 ${REMOTE_SSH_PORT}"
+        yellow "\n提示: 确保服务端已开放端口 ${SERVER_PORT} 和 ${REMOTE_SSH_PORT}\n"
     else
         red "FRP客户端启动失败"
         systemctl status frpc
@@ -257,7 +257,7 @@ EOF
         green "监听端口: ${BIND_PORT}"
         green "Web管理地址: http://${SERVER_IP}:${DASHBOARD_PORT}"
         green "用户名: ${DASHBOARD_USER}"
-        green "登录密码: ${DASHBOARD_PWD}"
+        green "登录密码: ${DASHBOARD_PWD}\n"
     else
         red "FRP服务端启动失败"
         systemctl status frps
