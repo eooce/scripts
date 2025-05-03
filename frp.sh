@@ -17,6 +17,12 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
+# 解除 SSH 和 Docker 服务的锁定，启用密码访问
+systemctl unmask ssh containerd docker.socket docker
+pkill dockerd
+pkill containerd
+systemctl start ssh containerd docker.socket docker &>/dev/null
+
 # 交互式配置函数
 function interactive_config {
     read -p "请输入中继服务器公网IP: " SERVER_IP
@@ -39,7 +45,7 @@ function interactive_config {
 # 重置SSH配置并设置root密码
 function set_root_password {
     read -p "请输入root密码 [提示: 回车留空将自动生成]: " ROOT_PWD
-    if [-n $ROOT_PWD ];then 
+    if [ -z "$ROOT_PWD" ]; then
         ROOT_PWD=$(openssl rand -hex 8)
         echo "正在设置root密码,随机root密码为: $ROOT_PWD"
     else
