@@ -21,11 +21,12 @@ check_root() {
 }
 
 get_server_ip() {
-    local ipv4=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
+    local ipv4=$(curl -s --max-time 2 ipv4.ip.sb)
     if [ -n "$ipv4" ]; then
         echo "$ipv4"
     else
-        ip -6 addr show scope global | grep -oP '(?<=inet6\s)[\da-f:]+' | head -1
+        ipv6=$(curl -s --max-time 2 ipv6.ip.sb)
+        echo "[$ipv6]"
     fi
 }
 
