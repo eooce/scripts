@@ -176,7 +176,7 @@ install_server() {
     cat > current/frps.toml <<EOF
 bindAddr = "0.0.0.0"
 bindPort = ${BIND_PORT}
-kcpBindPort = ${BIND_PORT}
+quicBindPort = ${BIND_PORT}
 
 auth.method = "token"
 auth.token = "${TOKEN}"
