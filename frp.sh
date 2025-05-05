@@ -1,6 +1,6 @@
 #!/bin/bash
 # 集成式FRP内网穿透配置脚本（带信息保存功能）
-# 安装服务端/客户端时自动保存配置到/opt/frp/current/info.txt
+# 安装服务端/客户端时自动保存配置到/home/frp/info.txt
 # 官方服务端口示例配置：https://github.com/fatedier/frp/blob/dev/conf/frps_full_example.toml
 # 官方客户端口示例配置：https://github.com/fatedier/frp/blob/dev/conf/frpc_full_example.toml
 
@@ -12,9 +12,9 @@ reading() { read -p "$(red "$1")" "$2"; }
 
 # 环境变量
 export FRP_VERSION=${FRP_VERSION:-'0.62.1'}  
-export FRP_DIR=${FRP_DIR:-'/opt/frp'} 
+export FRP_DIR=${FRP_DIR:-'/home/frp'} 
 export SSH_PORT=${SSH_PORT:-'22'} 
-export INFO_FILE="${FRP_DIR}/current/info.txt"
+export INFO_FILE="${FRP_DIR}/info.txt"
 
 check_root() {
     [ "$(id -u)" != "0" ] && { red "错误: 此脚本需要以root权限运行"; exit 1; }
@@ -55,12 +55,9 @@ download_frp() {
         }
     }
     
-    [ ! -d "frp_${FRP_VERSION}_linux_${ARCH}" ] && {
-        tar -zxvf "${FRP_PACKAGE}" >/dev/null || { red "解压frp失败"; exit 1; }
-    }
-    
-    ln -sf "frp_${FRP_VERSION}_linux_${ARCH}" current
-    rm -f "${FRP_PACKAGE}"
+    tar -zxvf "${FRP_PACKAGE}" >/dev/null || { red "解压frp失败"; exit 1; }
+    mv frp_${FRP_VERSION}_linux_${ARCH}/* ${FRP_DIR}/
+    rm -rf frp_${FRP_VERSION}_linux_${ARCH} ${FRP_PACKAGE}
 }
 
 set_root_password() {
@@ -174,7 +171,7 @@ install_server() {
     init_frp_dir
     download_frp "$ARCH"
     
-    cat > current/frps.toml <<EOF
+    cat > ${FRP_DIR}/frps.toml <<EOF
 bindAddr = "0.0.0.0"
 bindPort = ${BIND_PORT}
 quicBindPort = ${BIND_PORT}
@@ -204,7 +201,7 @@ Type=simple
 User=root
 Restart=on-failure
 RestartSec=5s
-ExecStart=${FRP_DIR}/current/frps -c ${FRP_DIR}/current/frps.toml
+ExecStart=${FRP_DIR}/frps -c ${FRP_DIR}/frps.toml
 LimitNOFILE=1048576
 
 [Install]
@@ -227,11 +224,11 @@ EOF
             "web端口|${DASHBOARD_PORT}" \
             "web登录用户名|${DASHBOARD_USER}" \
             "web登录密码|${DASHBOARD_PWD}"
-        yellow "客户端与服务端通信信息:"
+        yellow "====== 客户端与服务端通信信息 ======"
         green "监听端口: ${BIND_PORT}"
         green "监听IP: ${SERVER_IP}"
         green "认证TOKEN: ${TOKEN}\n"
-        purple "web管理信息:"
+        purple "====== web管理信息 ======"
         green "Web地址: http://${SERVER_IP}:${DASHBOARD_PORT}"
         green "用户名: ${DASHBOARD_USER}"
         green "登录密码: ${DASHBOARD_PWD}\n"
@@ -271,7 +268,7 @@ install_client() {
     init_frp_dir
     download_frp "$ARCH"
     
-    cat > current/frpc.toml <<EOF
+    cat > ${FRP_DIR}/frpc.toml <<EOF
 serverAddr = "${SERVER_IP}"
 serverPort = ${SERVER_PORT}
 
@@ -279,8 +276,15 @@ auth.method = "token"
 auth.token = "${TOKEN}"
 
 log.to = "/var/log/frpc.log"
-log.level = "info"
+log.level = "error"
 log.maxDays = 3
+
+transport.poolCount = 5
+transport.heartbeatInterval = 10
+transport.heartbeatTimeout = 30
+transport.dialServerKeepalive = 10
+transport.dialServerTimeout = 30
+transport.tcpMuxKeepaliveInterval = 10
 
 [[proxies]]
 name = "ssh_$(hostname)"
@@ -288,6 +292,21 @@ type = "tcp"
 localIP = "127.0.0.1"
 localPort = ${SSH_PORT}
 remotePort = ${REMOTE_SSH_PORT}
+
+# [[proxies]]
+# name = "tcp-example"
+# type = "tcp"
+# localIP = "127.0.0.1"
+# localPort = 60000
+# remotePort = 60000
+
+# [[proxies]]
+# name = "udp-example"
+# type = "udp"
+# localIP = "127.0.0.1"
+# localPort = 60001
+# remotePort = 60001
+
 EOF
 
     cat > /etc/systemd/system/frpc.service <<EOF
@@ -300,7 +319,7 @@ Type=simple
 User=root
 Restart=on-failure
 RestartSec=5s
-ExecStart=${FRP_DIR}/current/frpc -c ${FRP_DIR}/current/frpc.toml
+ExecStart=${FRP_DIR}/frpc -c ${FRP_DIR}/frpc.toml
 LimitNOFILE=1048576
 
 [Install]
@@ -322,10 +341,11 @@ EOF
             "远程映射端口|${REMOTE_SSH_PORT}" \
             "root密码|${ROOT_PWD}"
         green "FRP客户端安装完成!\n"
-        yellow "SSH连接信息:"
+        purple "====== SSH连接信息 ======"
         green "服务器IP: ${SERVER_IP}"
         green "SSH端口: ${REMOTE_SSH_PORT}"
-        green "root密码: ${ROOT_PWD}"
+        green "SSH用户: root"
+        green "SSH密码: ${ROOT_PWD}"
         yellow "\n温馨提示: 确保服务端已开放端口 ${SERVER_PORT} 和 ${REMOTE_SSH_PORT}\n"
     else
         red "FRP客户端启动失败"
@@ -354,12 +374,12 @@ uninstall_frp() {
 
 main_menu() {
     clear
-    purple "\n====== FRP 管理脚本 ======"
-    green "1. 安装 FRP 服务端 (公网服务器)"
-    green "2. 安装 FRP 客户端 (内网服务器)"
-    purple "3. 显示当前配置信息"
-    red "4. 卸载 FRP"
-    red "0. 退出脚本"
+    purple "\n======== FRP 管理脚本 ========\n"
+    green "1. 安装 FRP 服务端 (公网服务器)\n"
+    green "2. 安装 FRP 客户端 (内网服务器)\n"
+    purple "3. 显示当前配置信息\n"
+    red "4. 卸载 FRP\n"
+    yellow "0. 退出脚本\n"
     yellow "=========================="
     
     reading "请选择操作 [0-4]: " CHOICE
