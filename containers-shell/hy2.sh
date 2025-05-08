@@ -1,5 +1,5 @@
 #!/bin/bash
-export PASSWORD=${PASSWORD:-$(uuidgen -r)} 
+export PASSWORD=${PASSWORD:-$(cat /proc/sys/kernel/random/uuid)} 
 export SERVER_PORT="${SERVER_PORT:-${PORT:-8880}}"      
 export NEZHA_SERVER=${NEZHA_SERVER:-'nz.123.cn'}      
 export NEZHA_PORT=${NEZHA_PORT:-'5555'}          
