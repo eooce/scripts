@@ -62,7 +62,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/agent.sh)
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/frp.sh)
 ```
 
-## 一键安装telegram代理
+## 一键安装telegram代理(支持所有主流系统)
 可选环境变量 `PORT`
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/mtp.sh)
