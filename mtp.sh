@@ -7,11 +7,10 @@ purple() { echo -e "\e[1;35m$1\033[0m"; }
 HOSTNAME=$(hostname)
 USERNAME=$(whoami | tr '[:upper:]' '[:lower:]')
 export SECRET=${SECRET:-$(echo -n "$USERNAME+$HOSTNAME" | md5sum | head -c 32)}
-WORKDIR="${HOME}/mtp" && mkdir -p "$WORKDIR"
-pgrep -x mtp > /dev/null && pkill -9 mtp >/dev/null 2>&1
+WORKDIR="$HOME/mtp" && mkdir -p "$WORKDIR"
+pgrep -x mtg > /dev/null && pkill -9 mtg >/dev/null 2>&1
 
 check_port () {
-  purple "正在安装中,请稍等..."
   port_list=$(devil port list)
   tcp_ports=$(echo "$port_list" | grep -c "tcp")
   udp_ports=$(echo "$port_list" | grep -c "udp")
@@ -104,7 +103,60 @@ nohup ./mtg run -b 0.0.0.0:$MTP_PORT $SECRET --stats-bind=127.0.0.1:$MTP_PORT >/
 EOF
 }
 
-check_port
-get_ip
-download_run
-generate_info
+download_mtg(){
+arch=$(uname -m)
+if [ "$arch" == "x86_64" ]; then
+    arch="amd64"
+elif [ "$arch" == "aarch64" ]; then
+    arch="arm64"
+else
+    arch="amd64"
+fi
+
+if [ "$arch" == "amd64" ]; then
+    mtg_url="https://github.com/whunt1/onekeymakemtg/raw/refs/heads/master/builds/ccbuilds/mtg-linux-amd64"
+elif [ "$arch" == "arm64" ]; then
+    mtg_url="https://github.com/whunt1/onekeymakemtg/raw/refs/heads/master/builds/ccbuilds/mtg-linux-arm64"
+elif [ "$arch" == "arm" ]; then
+    mtg_url="https://github.com/whunt1/onekeymakemtg/raw/refs/heads/master/builds/ccbuilds/mtg-linux-arm"
+elif [ "$arch" == "386" ]; then
+    mtg_url="https://github.com/whunt1/onekeymakemtg/raw/refs/heads/master/builds/ccbuilds/mtg-linux-386"
+else
+    red "不支持的系统！" && exit 1
+fi
+
+wget -q -O "${WORKDIR}/mtg" "$mtg_url"
+
+export PORT=${PORT:-$(shuf -i 200-1000 -n 1)}
+export MTP_PORT=$(($PORT + 1)) 
+
+if [ -e "${WORKDIR}/mtg" ]; then
+    cd ${WORKDIR} && chmod +x mtg
+    nohup ./mtg run -b 0.0.0.0:$PORT $SECRET --stats-bind=127.0.0.1:$MTP_PORT >/dev/null 2>&1 &
+fi
+}
+
+show_link(){
+    ip=$(curl -s ip.sb)
+    purple "\nTG分享链接(如获取的是ipv6,可自行将ipv6换成ipv4):\n"
+    LINKS="tg://proxy?server=$ip&port=$PORT&secret=$SECRET"
+    green "$LINKS\n"
+    echo -e "$LINKS" > $WORKDIR/link.txt
+
+    purple "\n一键卸载命令: rm -rf mtp && pkill mtg"
+}
+
+install(){
+purple "正在安装中,请稍等...\n"
+if [[ "$HOSTNAME" =~ serv00.com|ct8.pl|hostuno.com ]]; then
+    check_port
+    get_ip
+    download_run
+    generate_info
+else
+    download_mtg
+    show_link
+fi
+}
+
+install
