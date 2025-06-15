@@ -62,6 +62,12 @@ bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/agent.sh)
 bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/frp.sh)
 ```
 
+## 一键安装telegram代理
+可选环境变量 `PORT`
+```
+bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/mtp.sh)
+```
+
 
 vless-ws-tls(argo)一键脚本,复制脚本回车即可
 * 可选变量：UUID  NEZHA_SERVER  NEZHA_PORT  NEZHA_KEY  CFIP CFPORT
