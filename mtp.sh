@@ -140,7 +140,7 @@ show_link(){
 
 install(){
 purple "正在安装中,请稍等...\n"
-if [[ "$HOSTNAME" =~ serv00.com|ct8.pl|hostuno.com ]]; then
+if [[ "$HOSTNAME" =~ serv00.com|ct8.pl|useruno.com ]]; then
     check_port
     get_ip
     download_run
