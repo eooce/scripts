@@ -104,28 +104,20 @@ EOF
 }
 
 download_mtg(){
-arch=$(uname -m)
-if [ "$arch" == "x86_64" ]; then
+cmd=$(uname -m)
+if [ "$cmd" == "x86_64" ] || [ "$cmd" == "amd64" ] ; then
     arch="amd64"
-elif [ "$arch" == "aarch64" ]; then
-    arch="arm64"
+elif [ "$cmd" == "386" ]; then
+    arch="386"
+elif [ "$cmd" == "arm" ]; then
+    arch="arm"
+elif [ "$cmd" == "aarch64" ]; then
+    arch="arm64"    
 else
     arch="amd64"
 fi
 
-if [ "$arch" == "amd64" ]; then
-    mtg_url="https://github.com/whunt1/onekeymakemtg/raw/refs/heads/master/builds/ccbuilds/mtg-linux-amd64"
-elif [ "$arch" == "arm64" ]; then
-    mtg_url="https://github.com/whunt1/onekeymakemtg/raw/refs/heads/master/builds/ccbuilds/mtg-linux-arm64"
-elif [ "$arch" == "arm" ]; then
-    mtg_url="https://github.com/whunt1/onekeymakemtg/raw/refs/heads/master/builds/ccbuilds/mtg-linux-arm"
-elif [ "$arch" == "386" ]; then
-    mtg_url="https://github.com/whunt1/onekeymakemtg/raw/refs/heads/master/builds/ccbuilds/mtg-linux-386"
-else
-    red "不支持的系统！" && exit 1
-fi
-
-wget -q -O "${WORKDIR}/mtg" "$mtg_url"
+wget -q -O "${WORKDIR}/mtg" "https://github.com/whunt1/onekeymakemtg/raw/master/builds/ccbuilds/mtg-linux-$arch"
 
 export PORT=${PORT:-$(shuf -i 200-1000 -n 1)}
 export MTP_PORT=$(($PORT + 1)) 
