@@ -350,13 +350,13 @@ modify_agent_config() {
 
 [Unit]
 Description=哪吒探针监控端
-ConditionFileIsExecutable=/opt/nezha/agent/nezha-agent
+ConditionFileIsExecutable=/etc/opt/nezha/agent/nezha-agent
 
 
 [Service]
 StartLimitInterval=5
 StartLimitBurst=10
-ExecStart=/opt/nezha/agent/nezha-agent "-s" "${nz_grpc_host}:${nz_grpc_port}" "-p" "${nz_client_secret}" --disable-auto-update
+ExecStart=/etc/opt/nezha/agent/nezha-agent "-s" "${nz_grpc_host}:${nz_grpc_port}" "-p" "${nz_client_secret}" --disable-auto-update
 
 WorkingDirectory=/root
 
@@ -382,7 +382,7 @@ EOF
 
 description="哪吒探针监控端"
 
-command="/opt/nezha/agent/nezha-agent"
+command="/etc/opt/nezha/agent/nezha-agent"
 command_args="-s ${nz_grpc_host}:${nz_grpc_port} -p ${nz_client_secret} --disable-auto-update"
 command_background=true
 pidfile="/var/run/nezha-agent.pid"
@@ -393,8 +393,8 @@ depend() {
 
 start_pre() {
     checkpath --directory /root
-    checkpath --directory /opt/nezha/agent
-    checkpath --file /opt/nezha/agent/nezha-agent
+    checkpath --directory /etc/opt/nezha/agent
+    checkpath --file /etc/opt/nezha/agent/nezha-agent
 }
 
 supervisor="supervise-daemon"
@@ -404,15 +404,24 @@ error_log="/var/log/nezha-agent.err"
 retry="120"
 EOF
 
-        dos2unix $NZ_AGENT_SERVICERC
         chmod +x $NZ_AGENT_SERVICERC
-        rc-update add nezha-agent
-        rc-service nezha-agent restart
-
+        rc-update add nezha-agent default
+        service nezha-agent restart
     fi
 
-echo -e "Agent配置 ${green}修改成功，请稍等重启生效${plain}"
-
+if [ "$os_alpine" != 1 ]; then
+  if [ "$(systemctl is-active nezha-agent)" = "active" ]; then
+    echo -e "Agent配置 ${green}修改成功，等待重启生效${plain}"
+  else
+    echo -e "Agent配置 ${green}修改失败，启动失败${plain}"
+  fi
+else
+  if service nezha-agent status | grep -q "started"; then
+    echo -e "Agent配置 ${green}修改成功，等待重启生效${plain}"
+  else
+    echo -e "Agent配置 ${green}修改失败，启动失败${plain}"
+  fi
+fi
 }
 
 modify_dashboard_config() {
