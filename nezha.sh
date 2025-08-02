@@ -386,22 +386,6 @@ command="/etc/opt/nezha/agent/nezha-agent"
 command_args="-s ${nz_grpc_host}:${nz_grpc_port} -p ${nz_client_secret} --disable-auto-update"
 command_background=true
 pidfile="/var/run/nezha-agent.pid"
-
-depend() {
-    need net
-}
-
-start_pre() {
-    checkpath --directory /root
-    checkpath --directory /etc/opt/nezha/agent
-    checkpath --file /etc/opt/nezha/agent/nezha-agent
-}
-
-supervisor="supervise-daemon"
-output_log="/var/log/nezha-agent.log"
-error_log="/var/log/nezha-agent.err"
-
-retry="120"
 EOF
 
         chmod +x $NZ_AGENT_SERVICERC
