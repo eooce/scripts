@@ -5,7 +5,7 @@ green="\e[1;32m"
 yellow="\e[1;33m"
 plain="\033[0m"
  
-NZ_BASE_PATH="/opt/nezha"
+NZ_BASE_PATH="/etc/opt/nezha"
 NZ_DASHBOARD_PATH="${NZ_BASE_PATH}/dashboard"
 NZ_AGENT_PATH="${NZ_BASE_PATH}/agent"
 NZ_AGENT_SERVICE="/etc/systemd/system/nezha-agent.service"
