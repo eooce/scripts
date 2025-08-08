@@ -305,6 +305,7 @@ install_agent() {
 
     unzip -qo nezha-agent_linux_${os_arch}.zip &&
     mv nezha-agent $NZ_AGENT_PATH &&
+    chmod + x $NZ_AGENT_PATH/nezha-agent
     rm -rf nezha-agent_linux_${os_arch}.zip README.md
 
     if [ $# -ge 3 ]; then
@@ -382,8 +383,8 @@ EOF
 
 description="哪吒探针监控端"
 
-command="/opt/nezha/agent/nezha-agent"
-command_args="-s ${nz_grpc_host}:${nz_grpc_port} -p ${nz_client_secret} --disable-auto-update"
+command="/bin/sh"
+command_args="-c '/opt/nezha/agent/nezha-agent -s ${nz_grpc_host}:${nz_grpc_port} -p ${nz_client_secret} --disable-auto-update  2>&1'"
 command_background=true
 pidfile="/var/run/nezha-agent.pid"
 EOF
