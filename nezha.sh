@@ -305,8 +305,8 @@ install_agent() {
 
     unzip -qo nezha-agent_linux_${os_arch}.zip &&
     mv nezha-agent $NZ_AGENT_PATH &&
-    chmod + x $NZ_AGENT_PATH/nezha-agent
-    rm -rf nezha-agent_linux_${os_arch}.zip README.md
+    rm -rf nezha-agent_linux_${os_arch}.zip README.md &&
+    chmod +x $NZ_AGENT_PATH/nezha-agent
 
     if [ $# -ge 3 ]; then
         modify_agent_config "$@"
