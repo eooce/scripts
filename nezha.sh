@@ -5,7 +5,7 @@ green="\e[1;32m"
 yellow="\e[1;33m"
 plain="\033[0m"
  
-NZ_BASE_PATH="/etc/opt/nezha"
+NZ_BASE_PATH="/opt/nezha"
 NZ_DASHBOARD_PATH="${NZ_BASE_PATH}/dashboard"
 NZ_AGENT_PATH="${NZ_BASE_PATH}/agent"
 NZ_AGENT_SERVICE="/etc/systemd/system/nezha-agent.service"
@@ -350,13 +350,13 @@ modify_agent_config() {
 
 [Unit]
 Description=哪吒探针监控端
-ConditionFileIsExecutable=/etc/opt/nezha/agent/nezha-agent
+ConditionFileIsExecutable=/opt/nezha/agent/nezha-agent
 
 
 [Service]
 StartLimitInterval=5
 StartLimitBurst=10
-ExecStart=/etc/opt/nezha/agent/nezha-agent "-s" "${nz_grpc_host}:${nz_grpc_port}" "-p" "${nz_client_secret}" --disable-auto-update
+ExecStart=/opt/nezha/agent/nezha-agent "-s" "${nz_grpc_host}:${nz_grpc_port}" "-p" "${nz_client_secret}" --disable-auto-update
 
 WorkingDirectory=/root
 
@@ -382,7 +382,7 @@ EOF
 
 description="哪吒探针监控端"
 
-command="/etc/opt/nezha/agent/nezha-agent"
+command="/opt/nezha/agent/nezha-agent"
 command_args="-s ${nz_grpc_host}:${nz_grpc_port} -p ${nz_client_secret} --disable-auto-update"
 command_background=true
 pidfile="/var/run/nezha-agent.pid"
