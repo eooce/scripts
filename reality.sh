@@ -130,8 +130,8 @@ EOF
     # 生成配置文件
     echo -e "\e[1;32m生成Xray配置文件...\e[0m"
     reX25519Key=$(/usr/local/bin/xray x25519)
-    rePrivateKey=$(echo "${reX25519Key}" | head -1 | awk '{print $3}')
-    rePublicKey=$(echo "${reX25519Key}" | tail -n 1 | awk '{print $3}')
+    rePrivateKey=$(echo "${reX25519Key}" | grep "PrivateKey:" | awk '{print $2}')
+    rePublicKey=$(echo "${reX25519Key}" | grep "Password:" | awk '{print $2}')
     shortId=$(openssl rand -hex 8)
 
     cat >/usr/local/etc/xray/config.json <<EOF
