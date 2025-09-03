@@ -74,11 +74,11 @@ getIP() {
 detect_architecture() {
     local arch=$(uname -m)
     case $arch in
-        x86_64) echo "amd64" ;;
-        aarch64|arm64) echo "arm64" ;;
-        armv7l) echo "armv7" ;;
-        armv6l) echo "armv6" ;;
-        *) echo "amd64" ;;
+        x86_64) echo "64" ;;
+        aarch64|arm64) echo "arm64-v8a" ;;
+        armv7l) echo "armv7-v7a" ;;
+        armv6l) echo "armv6-v6" ;;
+        *) echo "64" ;;
     esac
 }
 
