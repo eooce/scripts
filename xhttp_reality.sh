@@ -1,5 +1,5 @@
 #!/bin/bash
-export PORT=${PORT:-$(shuf -i 2000-65000 -n 1)}
+export PORT=${PORT:-'8880'}
 export UUID=${UUID:-$(cat /proc/sys/kernel/random/uuid)}
 
 # 检查是否为root下运行
@@ -7,7 +7,6 @@ export UUID=${UUID:-$(cat /proc/sys/kernel/random/uuid)}
 
 # 安装依赖
 Install_dependencies() {
-    echo -e "\e[1;32m开始全自动安装xhttp-reality中,请稍等...\e[0m"
     packages="gawk curl openssl qrencode wget unzip"
     install=""
 
@@ -131,64 +130,60 @@ EOF
     # 生成配置文件
     echo -e "\e[1;32m生成Xray配置文件...\e[0m"
     reX25519Key=$(/usr/local/bin/xray x25519)
-    rePrivateKey=$(echo "${reX25519Key}" | head -1 | awk '{print $3}')
-    rePublicKey=$(echo "${reX25519Key}" | tail -n 1 | awk '{print $3}')
+    rePrivateKey=$(echo "${reX25519Key}" | grep "PrivateKey:" | awk '{print $2}')
+    rePublicKey=$(echo "${reX25519Key}" | grep "Password:" | awk '{print $2}')
     shortId=$(openssl rand -hex 8)
 
     cat >/usr/local/etc/xray/config.json <<EOF
 {
-  "inbounds": [
-    {
-      "port": $PORT, 
-      "protocol": "vless",
-      "settings": {
-        "clients": [
-          {
-            "id": "$UUID"
-          }
-        ],
-        "decryption": "none"
-      },
-      "streamSettings": {
-        "network": "xhttp",
-        "security": "reality",
-        "realitySettings": {
-          "target": "www.nazhumi.com:443",
-          "xver": 0,
-          "serverNames": [
-            "www.nazhumi.com"
-          ],
-          "privateKey": "$rePrivateKey",
-          "shortIds": [
-            "$shortId"
-          ]
+    "inbounds": [
+        {
+            "port": $PORT,
+            "protocol": "vless",
+            "settings": {
+                "clients": [
+                    {
+                        "id": "$UUID",
+                        "flow": "xtls-rprx-vision"
+                    }
+                ],
+                "decryption": "none"
+            },
+            "streamSettings": {
+                "network": "tcp",
+                "security": "reality",
+                "realitySettings": {
+                    "show": false,
+                    "dest": "1.1.1.1:443",
+                    "xver": 0,
+                    "serverNames": [
+                        "www.nazhumi.com"
+                    ],
+                    "privateKey": "$rePrivateKey",
+                    "minClientVer": "",
+                    "maxClientVer": "",
+                    "maxTimeDiff": 0,
+                    "shortIds": [
+                        "$shortId"
+                    ]
+                }
+            }
         }
-      },
-      "sniffing": {
-        "enabled": true,
-        "destOverride": [
-          "http",
-          "tls",
-          "quic"
-        ]
-      }
-    }
-  ],
-  "outbounds": [
-      {
-        "protocol": "freedom",
-        "tag": "direct"
+    ],
+    "outbounds": [
+        {
+            "protocol": "freedom",
+            "tag": "direct"
         },
-      {
-        "protocol": "blackhole",
-        "tag": "blocked"
-      }
+        {
+            "protocol": "blackhole",
+            "tag": "blocked"
+        }
     ]    
 }
 EOF
 
-    systemctl daemon-reload
-    systemctl enable xray.service
+    # 启动Xray服务
     systemctl restart xray.service
 
     # 获取ipinfo
@@ -196,14 +191,19 @@ EOF
 
     # 删除运行脚本
     rm -f tcp-wss.sh install-release.sh reality.sh 
+
     IP=$(getIP)
-    url="vless://${UUID}@${IP}:${PORT}?encryption=none&security=reality&sni=www.nazhumi.com&fp=chrome&pbk=${rePublicKey}&sid=${shortId}&allowInsecure=1&type=xhttp&mode=auto#$ISP"
-        
-    echo -e "\n\e[1;32mxhttp-reality 安装成功\033[0m\n"
-    echo -e "\e[1;32m${url}\033[0m\n"
+    url="vless://${UUID}@${IP}:${PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.nazhumi.com&fp=chrome&pbk=${rePublicKey}&sid=${shortId}&type=tcp&headerType=none#$ISP"
+
+    echo ""
+    echo -e "\e[1;32mreality 安装成功\033[0m"
+    echo ""
+    echo -e "\e[1;32m${url}\033[0m"
+    echo ""
     qrencode -t ANSIUTF8 -m 2 -s 2 -o - "$url"
     echo ""   
 
+    # 清理临时文件
     rm -f xray.zip geoip.dat geosite.dat
     
     echo -e "\e[1;32mXray安装完成\e[0m"
