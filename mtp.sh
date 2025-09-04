@@ -117,7 +117,7 @@ else
     arch="amd64"
 fi
 
-wget -q -O "${WORKDIR}/mtg" "https://github.com/whunt1/onekeymakemtg/raw/master/builds/ccbuilds/mtg-linux-$arch"
+wget -q -O "${WORKDIR}/mtg" “https://github.com/whunt1/onekeymakemtg/blob/master/builds/mtg-linux-$arch”
 
 export PORT=${PORT:-$(shuf -i 200-1000 -n 1)}
 export MTP_PORT=$(($PORT + 1)) 
