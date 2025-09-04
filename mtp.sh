@@ -111,7 +111,7 @@ elif [ "$cmd" == "386" ]; then
     arch="386"
 elif [ "$cmd" == "arm" ]; then
     arch="arm"
-elif [ "$cmd" == "aarch64" ]; then
+elif [ "$cmd" == "aarch64" ] || [ "$cmd" == "arm64" ] ; then
     arch="arm64"    
 else
     arch="amd64"
