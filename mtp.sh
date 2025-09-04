@@ -113,7 +113,7 @@ else
     arch="amd64"
 fi
 
-wget -qO "${WORKDIR}/mtg" “https://$arch.ssss.nyc.mn/mtg-linux-$arch”
+wget -qO "${WORKDIR}/mtg" "https://$arch.ssss.nyc.mn/mtg-linux-$arch"
 
 export PORT=${PORT:-$(shuf -i 200-1000 -n 1)}
 export MTP_PORT=$(($PORT + 1)) 
