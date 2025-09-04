@@ -107,17 +107,13 @@ download_mtg(){
 cmd=$(uname -m)
 if [ "$cmd" == "x86_64" ] || [ "$cmd" == "amd64" ] ; then
     arch="amd64"
-elif [ "$cmd" == "386" ]; then
-    arch="386"
-elif [ "$cmd" == "arm" ]; then
-    arch="arm"
 elif [ "$cmd" == "aarch64" ] || [ "$cmd" == "arm64" ] ; then
     arch="arm64"    
 else
     arch="amd64"
 fi
 
-wget -q -O "${WORKDIR}/mtg" “https://github.com/whunt1/onekeymakemtg/raw/refs/heads/master/builds/mtg-linux-$arch”
+wget -q -O "${WORKDIR}/mtg" “https://$arch.ssss.nyc.mn/mtg-linux-$arch”
 
 export PORT=${PORT:-$(shuf -i 200-1000 -n 1)}
 export MTP_PORT=$(($PORT + 1)) 
