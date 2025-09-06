@@ -40,6 +40,9 @@ pre_check() {
     elif uname -m | grep -q 'riscv64'; then
         os_arch="riscv64"
     fi
+    
+    # Debug information
+    echo -e "${yellow}检测到的系统架构: $(uname -m) -> ${os_arch}${plain}"
 
     ## China_IP
     if [ -z "$CN" ]; then
@@ -145,6 +148,19 @@ before_show_menu() {
 install_base() {
     (command -v git >/dev/null 2>&1 && command -v curl >/dev/null 2>&1 && command -v wget >/dev/null 2>&1 && command -v unzip >/dev/null 2>&1 && command -v getenforce >/dev/null 2>&1) ||
     (install_soft curl wget git unzip)
+    
+    # Additional checks for Alpine Linux
+    if [ "$os_alpine" = 1 ]; then
+        # Ensure required packages are installed for Alpine
+        if ! command -v openrc >/dev/null 2>&1; then
+            echo -e "${yellow}安装 OpenRC 服务管理器...${plain}"
+            apk add --no-cache openrc
+        fi
+        
+        # Ensure the binary directory exists and has proper permissions
+        mkdir -p /opt/nezha/agent
+        chmod 755 /opt/nezha/agent
+    fi
 }
 
 install_arch(){
@@ -307,6 +323,81 @@ install_agent() {
     mv nezha-agent $NZ_AGENT_PATH &&
     rm -rf nezha-agent_linux_${os_arch}.zip README.md &&
     chmod +x $NZ_AGENT_PATH/nezha-agent
+    
+    # Additional checks for Alpine Linux
+    if [ "$os_alpine" = 1 ]; then
+        # Verify the binary is executable and compatible
+        if [ ! -x "$NZ_AGENT_PATH/nezha-agent" ]; then
+            echo -e "${red}错误: nezha-agent 二进制文件不可执行${plain}"
+            echo -e "${yellow}尝试修复权限...${plain}"
+            chmod +x "$NZ_AGENT_PATH/nezha-agent"
+        fi
+        
+        # Check file type and architecture
+        echo -e "${yellow}检查二进制文件信息...${plain}"
+        if command -v file >/dev/null 2>&1; then
+            file_info=$(file "$NZ_AGENT_PATH/nezha-agent" 2>/dev/null)
+            echo -e "${yellow}文件信息: ${file_info}${plain}"
+        else
+            echo -e "${yellow}file命令不可用，跳过文件类型检查${plain}"
+            file_info=""
+        fi
+        
+        # Test if the binary can run (basic compatibility check)
+        echo -e "${yellow}测试二进制文件兼容性...${plain}"
+        
+        # First check if binary can be executed at all
+        if ! timeout 5 "$NZ_AGENT_PATH/nezha-agent" --version >/dev/null 2>&1; then
+            echo -e "${red}二进制文件无法执行，可能是架构不匹配${plain}"
+            echo -e "${yellow}尝试检查二进制文件架构...${plain}"
+            
+            # Check if we can get more info about the binary
+            if command -v ldd >/dev/null 2>&1; then
+                echo -e "${yellow}依赖库检查:${plain}"
+                ldd "$NZ_AGENT_PATH/nezha-agent" 2>&1 || echo "无法检查依赖库"
+            fi
+            
+            # Check if it's a valid ELF file
+            if command -v readelf >/dev/null 2>&1; then
+                echo -e "${yellow}ELF文件信息:${plain}"
+                readelf -h "$NZ_AGENT_PATH/nezha-agent" 2>&1 || echo "不是有效的ELF文件"
+            fi
+        else
+            echo -e "${green}二进制文件可以执行${plain}"
+        fi
+        
+        # Try --help command
+        if timeout 10 "$NZ_AGENT_PATH/nezha-agent" --help >/dev/null 2>&1; then
+            echo -e "${green}二进制文件兼容性检查通过${plain}"
+        else
+            echo -e "${red}错误: nezha-agent 二进制文件不兼容当前系统架构${plain}"
+            echo -e "${yellow}检测到的架构: ${os_arch}${plain}"
+            echo -e "${yellow}系统架构: $(uname -m)${plain}"
+            echo -e "${yellow}文件信息: ${file_info}${plain}"
+            
+            # Try to download the correct architecture
+            echo -e "${yellow}尝试重新下载正确的架构...${plain}"
+            rm -f "$NZ_AGENT_PATH/nezha-agent"
+            wget -t 2 -T 60 -O nezha-agent_linux_${os_arch}.zip $NZ_AGENT_URL >/dev/null 2>&1
+            if [[ $? == 0 ]]; then
+                unzip -qo nezha-agent_linux_${os_arch}.zip &&
+                mv nezha-agent $NZ_AGENT_PATH &&
+                rm -rf nezha-agent_linux_${os_arch}.zip README.md &&
+                chmod +x $NZ_AGENT_PATH/nezha-agent
+                
+                # Test again
+                if timeout 10 "$NZ_AGENT_PATH/nezha-agent" --help >/dev/null 2>&1; then
+                    echo -e "${green}重新下载后二进制文件兼容性检查通过${plain}"
+                else
+                    echo -e "${red}重新下载后仍然不兼容，请检查发布页面是否有对应架构的版本${plain}"
+                    return 1
+                fi
+            else
+                echo -e "${red}重新下载失败${plain}"
+                return 1
+            fi
+        fi
+    fi
 
     if [ $# -ge 3 ]; then
         modify_agent_config "$@"
@@ -378,18 +469,36 @@ EOF
 
     else
         cat > $NZ_AGENT_SERVICERC << EOF
-
 #!/sbin/openrc-run
 
 description="哪吒探针监控端"
 
-command="/bin/sh"
-command_args="-c '/opt/nezha/agent/nezha-agent -s ${nz_grpc_host}:${nz_grpc_port} -p ${nz_client_secret} --disable-auto-update  2>&1'"
+command="/opt/nezha/agent/nezha-agent"
+command_args="-s ${nz_grpc_host}:${nz_grpc_port} -p ${nz_client_secret} --disable-auto-update"
 command_background=true
 pidfile="/var/run/nezha-agent.pid"
+
+start() {
+    ebegin "Starting nezha-agent"
+    start-stop-daemon --start --background --make-pidfile --pidfile /var/run/nezha-agent.pid --exec /opt/nezha/agent/nezha-agent -- -s ${nz_grpc_host}:${nz_grpc_port} -p ${nz_client_secret} --disable-auto-update
+    eend \$?
+}
+
+stop() {
+    ebegin "Stopping nezha-agent"
+    start-stop-daemon --stop --pidfile /var/run/nezha-agent.pid
+    eend \$?
+}
 EOF
 
         chmod +x $NZ_AGENT_SERVICERC
+        
+        # Verify the service file was created correctly
+        if [ ! -f "$NZ_AGENT_SERVICERC" ] || [ ! -x "$NZ_AGENT_SERVICERC" ]; then
+            echo -e "${red}错误: 服务文件创建失败或权限不正确${plain}"
+            return 1
+        fi
+        
         rc-update add nezha-agent default
         service nezha-agent restart
     fi
@@ -816,6 +925,60 @@ restart_agent() {
     fi
 }
 
+redownload_agent() {
+    echo -e "> 重新下载Agent二进制文件"
+    
+    if [ "$os_alpine" != 1 ]; then
+        echo -e "${red}此功能仅适用于Alpine Linux系统${plain}"
+        return 1
+    fi
+    
+    echo -e "${yellow}当前系统架构: $(uname -m)${plain}"
+    echo -e "${yellow}检测到的架构: ${os_arch}${plain}"
+    
+    # Remove existing binary
+    if [ -f "/opt/nezha/agent/nezha-agent" ]; then
+        echo -e "${yellow}删除现有二进制文件...${plain}"
+        rm -f /opt/nezha/agent/nezha-agent
+    fi
+    
+    # Download URL
+    if [ -z "$CN" ]; then
+        NZ_AGENT_URL="https://${GITHUB_URL}/nezhahq/agent/releases/download/${NZ_VERSION}/nezha-agent_linux_${os_arch}.zip"
+    else
+        NZ_AGENT_URL="https://${GITHUB_URL}/naibahq/agent/releases/download/${NZ_VERSION}/nezha-agent_linux_${os_arch}.zip"
+    fi
+    
+    echo -e "${yellow}下载URL: ${NZ_AGENT_URL}${plain}"
+    echo -e "${yellow}正在下载...${plain}"
+    
+    wget -t 2 -T 60 -O nezha-agent_linux_${os_arch}.zip $NZ_AGENT_URL
+    
+    if [[ $? != 0 ]]; then
+        echo -e "${red}下载失败，请检查网络连接${plain}"
+        return 1
+    fi
+    
+    echo -e "${yellow}解压文件...${plain}"
+    unzip -qo nezha-agent_linux_${os_arch}.zip &&
+    mv nezha-agent /opt/nezha/agent/ &&
+    rm -rf nezha-agent_linux_${os_arch}.zip README.md &&
+    chmod +x /opt/nezha/agent/nezha-agent
+    
+    echo -e "${yellow}测试新下载的二进制文件...${plain}"
+    if timeout 10 /opt/nezha/agent/nezha-agent --version >/dev/null 2>&1; then
+        echo -e "${green}重新下载成功，二进制文件可以正常运行${plain}"
+    else
+        echo -e "${red}重新下载后仍然无法运行${plain}"
+        echo -e "${yellow}文件信息: $(file /opt/nezha/agent/nezha-agent)${plain}"
+        return 1
+    fi
+    
+    if [[ $# == 0 ]]; then
+        before_show_menu
+    fi
+}
+
 clean_all() {
     if [ -z "$(ls -A ${NZ_BASE_PATH})" ]; then
         rm -rf ${NZ_BASE_PATH}
@@ -867,7 +1030,8 @@ show_usage() {
     echo "./nezha.sh modify_agent_config        - 修改Agent配置"
     echo "./nezha.sh show_agent_log             - 查看Agent日志"
     echo "./nezha.sh uninstall_agent            - 卸载Agen"
-    echo "./nezha.sh restart_agent              - 重启Agen"
+    echo "./nezha.sh restart_agent              - 重启Agent"
+    echo "./nezha.sh redownload_agent           - 重新下载Agent二进制文件"
     echo "./nezha.sh update_script              - 更新脚本"
     echo "--------------------------------------------------------"
 }
@@ -889,12 +1053,13 @@ show_menu() {
     ${green}10. 查看Agent日志${plain}
     ${green}11. 卸载Agent${plain}
     ${green}12. 重启Agent${plain}
+    ${green}13. 重新下载Agent文件${plain}
     ————————————————-
-    ${green}13. 更新脚本${plain}
+    ${green}14. 更新脚本${plain}
     ————————————————-
     ${green}0.  退出脚本${plain}
     "
-    echo && read -ep "请输入选择 [0-13]: " num
+    echo && read -ep "请输入选择 [0-14]: " num
     if [[ $IS_DOCKER_NEZHA == 1 ]]; then
         case "${num}" in
             0)
@@ -937,10 +1102,13 @@ show_menu() {
                 restart_agent
             ;;
             13)
+                redownload_agent
+            ;;
+            14)
                 update_script
             ;;
             *)
-                echo -e "${red}请输入正确的数字 [0-13]${plain}"
+                echo -e "${red}请输入正确的数字 [0-14]${plain}"
             ;;
         esac
     elif [[ $IS_DOCKER_NEZHA == 0 ]]; then
@@ -985,10 +1153,13 @@ show_menu() {
                 restart_agent
             ;;
             13)
+                redownload_agent
+            ;;
+            14)
                 update_script
             ;;
             *)
-                echo -e "${red}请输入正确的数字 [0-13]${plain}"
+                echo -e "${red}请输入正确的数字 [0-14]${plain}"
             ;;
         esac
     else
@@ -1042,6 +1213,9 @@ if [[ $# > 0 ]]; then
             "restart_agent")
                 restart_agent 0
             ;;
+            "redownload_agent")
+                redownload_agent 0
+            ;;
             "update_script")
                 update_script 0
             ;;
@@ -1090,6 +1264,9 @@ if [[ $# > 0 ]]; then
             "restart_agent")
                 restart_agent 0
             ;;
+            "redownload_agent")
+                redownload_agent 0
+            ;;
             "update_script")
                 update_script 0
             ;;
@@ -1116,6 +1293,9 @@ if [[ $# > 0 ]]; then
             ;;
             "restart_agent")
                 restart_agent 0
+            ;;
+            "redownload_agent")
+                redownload_agent 0
             ;;
             "update_script")
                 update_script 0
