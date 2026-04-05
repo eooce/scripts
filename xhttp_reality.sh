@@ -75,9 +75,9 @@ bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release
 
 # 配置Xray
 main() {
-    reX25519Key=$(/usr/local/bin/xray x25519)
-    rePrivateKey=$(echo "${reX25519Key}" | grep "PrivateKey:" | awk '{print $2}')
-    rePublicKey=$(echo "${reX25519Key}" | grep "Password:" | awk '{print $2}')
+    output=$(/usr/local/bin/xray x25519)
+    rePrivateKey=$(echo "${output}" | grep 'PrivateKey:' | awk '{print $2}')
+    rePublicKey=$(echo "${output}" | grep 'Password (PublicKey):' | awk '{print $3}')
     shortId=$(openssl rand -hex 8)
 
     cat >/usr/local/etc/xray/config.json <<EOF
