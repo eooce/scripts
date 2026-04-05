@@ -136,7 +136,7 @@ EOF
     systemctl enable xray.service && systemctl restart xray.service
 
     # 获取ipinfo
-    ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
+    ISP=$(curl -sm 3 -H "User-Agent: Mozilla/5.0" "https://api.ip.sb/geoip" | tr -d '\n' | awk -F\" '{c="";i="";for(x=1;x<=NF;x++){if($x=="country_code")c=$(x+2);if($x=="isp")i=$(x+2)};if(c&&i)print c"-"i}' | sed 's/ /_/g' || curl -sm 3 -H "User-Agent: Mozilla/5.0" "https://ip.api.skk.moe/cf-geoip" | tr -d '\n' | awk -F\" '{c="";i="";for(x=1;x<=NF;x++){if($x=="country")c=$(x+2);if($x=="asOrg")i=$(x+2)};if(c&&i)print c"-"i}' | sed 's/ /_/g' || echo "unknown")
 
     # 删除运行脚本
     rm -f tcp-wss.sh install-release.sh reality.sh 
