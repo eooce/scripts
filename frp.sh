@@ -60,7 +60,15 @@ download_frp() {
     rm -rf frp_${FRP_VERSION}_linux_${ARCH} ${FRP_PACKAGE}
 }
 
+
 set_root_password() {
+    yellow "正在安装依赖中..."
+    apt install ssh -y -qq 
+    systemctl unmask ssh
+    systemctl unmask ssh.socket
+    systemctl enable ssh
+    systemctl restart ssh
+    clear
     reading "请输入root密码 [提示: 回车留空将随机生成]: " ROOT_PWD
     [ -z "$ROOT_PWD" ] && {
         ROOT_PWD=$(openssl rand -hex 8)
